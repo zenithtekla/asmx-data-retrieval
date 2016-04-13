@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="js/angular.js"></script>
+    <script src="js/script.js"></script>
+    <link href="styles.css" rel="stylesheet" />
+</head>
+<body ng-app="myModule">
+    <div ng-controller="myController">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="customer in customers">
+                    <td>{{customer.id}}</td>
+                    <td>{{customer.name}}</td>
+                    <td>{{customer.timestamp}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br/>
+        <br/>
+        <h3>Mutants and Marvel Heroes</h3>
+        <table border="1" style="color:#166CD7">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Skill</th>
+                    <th>Appear</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="marvel in marvels">
+                    <td>{{$index}}</td>
+                    <td>{{marvel.name}}</td>
+                    <td>{{marvel.attribute}}</td>
+                    <td>{{marvel.present}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
