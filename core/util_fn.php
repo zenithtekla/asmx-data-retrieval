@@ -12,24 +12,11 @@ $fn_db_update_customer = function ($file = "conf.ini"){
 	print_r($t_qr);
 };*/
 
-class dbUTILS{
-
-	function __construct($retrieval_date = "03/01/2016") {
-		$this->retrieval_date = $retrieval_date;
-	}
-
-	function getRetrievalDate(){
-		return $this->retrieval_date;
-	}
-	function setRetrievalDate($val){
-		return $this->retrieval_date = $val;
-	}
-
-	// Universal UTILS (UTILS = Utilities) ///
-	function input_string_valid($str){
+class HelperUTILS{
+	public static function input_string_valid($str){
         return isset($str) && !empty($str);
     }
-    function input_string_escape($inp) {
+    public static function input_string_escape($inp) {
         if(is_array($inp))  return array_map(__METHOD__, $inp);
 
         if(input_string_valid($inp)) {
@@ -41,10 +28,22 @@ class dbUTILS{
         }
         return $inp;
     }
-    //////////////////////////////////////////
-
-	function getCurlData (){
-		$date = $this->getRetrievalDate();
+    public static function load_conf($file = "conf.ini"){
+    	// loading configured script
+		if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.')
+		else
+			return $conf;
+    }
+    public static function customer_search_result($query_string, $q){
+    	$response = [];
+    	$response["RESULT"] = db_query_bound( $query_string );
+    	$response["COUNT"] = db_num_rows( $result );
+    	return $response;
+    }
+    public static function last_update_time ($query_string){
+    	return mysql_query($query_string) or die(mysql_error());
+    }
+    public static function getCurlData ($date){
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -60,24 +59,42 @@ class dbUTILS{
 		}*/
 		return $result;
 	}
+}
 
-	function execUpdate($p_Curl_result, $p_qr_execude_update){
+class dbUTILS{
+
+	function __construct($retrieval_date = "03/01/2016") {
+		$this->retrieval_date = $retrieval_date;
+	}
+
+	function getRetrievalDate(){
+		return $this->retrieval_date;
+	}
+	function setRetrievalDate($val){
+		return $this->retrieval_date = $val;
+	}
+
+	function execUpdate($p_Curl_result, $p_qr_execute_update){
 		$obj = json_decode($p_Curl_result);
 		foreach ($obj as $val){
 			// TODO: refering to the UTIL class containing input_string_escape function
 			// to replace the $this->input_string_escape
-			$p_customer_name = $this->input_string_escape($val->CUST_NAME);
+			$p_customer_name = HelperUTILS::input_string_escape($val->CUST_NAME);
 			$p_timestamp = $val->ACCT_DATE;
-			db_query_bound($p_qr_execude_update);
+			db_query_bound($p_qr_execute_update);
 		}
 	}
 
-	function updateCustomer($p_unix_update_time, $query, $p_qr_execude_update){
+	function updateCustomer($args){
+		$p_unix_update_time = $args[0],
+		$qr = $args[1];
+
 		// TODO: appoint these boolean somewhere
 		$g_automatic_updated = true;
 		$g_button_clicked = true;
 		$g_counter = 0;
-		$p_max_timestamp = mysql_query($query) or die(mysql_error());
+
+		$p_max_timestamp = HelperUTILS::last_update_time($qr["QUERY_LAST_UPDATE"]);
 		$p_update_time_string = (string) date("m/d/Y", $p_unix_update_time);
 		$this->setRetrievalDate($p_update_time_string);
 
@@ -85,14 +102,14 @@ class dbUTILS{
 
 		if ($g_automatic_updated){
 			// execUpdate
-			$this->execUpdate($this->getCurlData(), $p_qr_execude_update);
+			$this->execUpdate(HelperUTILS::getCurlData($p_unix_update_time), $qr["QUERY_EXECUTE_UPDATE"]);
 			return $g_automatic_updated = false;
 		} else {
 			if ($g_counter<1){
 				$g_button_clicked = $p_unix_update_time - $p_max_timestamp > 60 && $g_button_clicked;
 				if ($g_button_clicked) {
 					// execUpdate
-					$this->execUpdate($this->getCurlData(), $p_qr_execude_update);
+					$this->execUpdate(HelperUTILS::getCurlData($p_unix_update_time), $qr["QUERY_EXECUTE_UPDATE"]);
 					$g_counter++;
 					return $g_button_clicked = false;
 				}
@@ -101,20 +118,24 @@ class dbUTILS{
 	}
 
 	function sayHello(){
-		echo "\n\n -=-MOCHA Testing -=- \n\n";
+		echo "\n\n -=- MOCHA Testing -=- \n\n";
 	}
 
-	function fn_database_update_customer ($t_unix_update_time, $file = "conf.ini"){
+	function fn_database_update_customer ($args){
 		// loading configured script
-		if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.');
-		$t_qr = $conf["QUERY_LAST_UPDATE"];
-		$t_mocha = $conf["MOCHA_TEST"];
-		$t_qr_execude_update = $conf["QUERY_EXECUTE_UPDATE"];
+		$p_unix_update_time = $args[0],
+		$count= $args[1],
+		$qr = $args[2];
+
+		$t_mocha = $qr["MOCHA_TEST"];
 		if ($t_mocha){
 			$this->sayHello();
 			// TODO: write test case
 		} else {
-			$this->updateCustomer($t_unix_update_time, $t_qr, $t_qr_execude_update);
+			if($count<1){
+				$args = [$p_unix_update_time, $qr];
+				$this->updateCustomer($args);
+			}
 		}
 	}
 }
