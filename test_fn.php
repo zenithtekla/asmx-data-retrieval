@@ -19,11 +19,13 @@ $t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
 // query trigger is the word the user enters on an input field in the view page
 // $t_update_trigger now represents the word the user entered, aka. search key or user input. We will verify if query result is < 1 and $t_query.length() match a specific number of chars to perform db_update
 
+// perform length check of $t_query input here or inject into $args and perform condition check together with $count
+
 $response = HelperUTILS::customer_search_result($qr["QUERY_CUSTOMER_FIND"], $t_query);
 // use json_encode($response["RESULT"]); to prepare Typeahead selectives
 
 $t_process = new dbUTILS();
-$args = [$t_unix_today, $response["COUNT"], $qr];
+$args = [$qr, $t_unix_today, $response["COUNT"]];
 $t_process->fn_database_update_customer($args);
 /*$t_temp = $t_process->fn_db_update_customer;
 $t_temp();*//*

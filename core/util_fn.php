@@ -85,10 +85,12 @@ class dbUTILS{
 		}
 	}
 
-	function updateCustomer($args){
-		$p_unix_update_time = $args[0],
-		$qr = $args[1];
+	function updateCustomer(){
+		$args = func_get_args();
 
+		if(isset($args[0]) && is_array($args[0]))
+			$qr = $args[0];
+		$p_unix_update_time = $args[1];
 		// TODO: appoint these boolean somewhere
 		$g_automatic_updated = true;
 		$g_button_clicked = true;
@@ -121,11 +123,12 @@ class dbUTILS{
 		echo "\n\n -=- MOCHA Testing -=- \n\n";
 	}
 
-	function fn_database_update_customer ($args){
-		// loading configured script
-		$p_unix_update_time = $args[0],
-		$count= $args[1],
-		$qr = $args[2];
+	function fn_database_update_customer (){
+		$args = func_get_args();
+		if(isset($args[0]) && is_array($args[0]))
+			$qr = $args[0];
+		$p_unix_update_time = $args[1],
+		$count= $args[2];
 
 		$t_mocha = $qr["MOCHA_TEST"];
 		if ($t_mocha){
@@ -133,7 +136,7 @@ class dbUTILS{
 			// TODO: write test case
 		} else {
 			if($count<1){
-				$args = [$p_unix_update_time, $qr];
+				$args = [$qr, $p_unix_update_time];
 				$this->updateCustomer($args);
 			}
 		}
