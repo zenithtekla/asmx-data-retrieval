@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+[1,2,3].map(n => console.log(n + 1));
 
 var app = angular
     .module("myModule", [])
@@ -9,20 +10,36 @@ var app = angular
         var params = "03/01/2016";
 
         $http.get("test.php")
-             .then(function (response) {
-                console.log("8) data received");
-                $scope.custs = response.data;
-                var o = {};
-                response.data.map(function(d,idx){
-                    o[idx] = {
-                        name: d.CUST_NAME,
-                        status: d.STATUS,
-                        timestamp: ((new Date(d.ACCT_DATE)).getTime() > 0) ? d.ACCT_DATE : (Date.parse(d.ACCT_DATE)/1000).toString()
-                    };
-                });
-                console.log(o);
-                $scope.customers = o;
-             });
+          .then(function (response) {
+            console.log("8) data received");
+            $scope.custs = response.data;
+            var o = {};
+            response.data.map(function(d,idx){
+                o[idx] = {
+                    name: d.CUST_NAME,
+                    status: d.STATUS,
+                    timestamp: ((new Date(d.ACCT_DATE)).getTime() > 0) ? d.ACCT_DATE : (Date.parse(d.ACCT_DATE)/1000).toString()
+                };
+            });
+            console.log(o);
+            $scope.customers = o;
+          });
+        $http.get("test_so_wo.php")
+          .then(function (response) {
+            console.log("8) data received");
+            $scope.custs = response.data;
+            var o = {};
+            response.data.map(function(d,idx){
+                o[idx] = {
+                    name: d.UNIQ_KEY,
+                    wo: d.WO_NO,
+                    so: d.SO_NO,
+                    timestamp: Math.floor(Date.now() / 1000)
+                };
+            });
+            console.log(o);
+            $scope.orders = o;
+          });
 
         $http.get("sample_data/sample_json.json")
          .then(function (response) {

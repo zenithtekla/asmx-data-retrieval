@@ -21,7 +21,8 @@ $t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
 
 // perform length check of $t_query input here or inject into $args and perform condition check together with $count
 
-$response = HelperUTILS::customer_search_result($qr["QUERY_CUSTOMER_FIND"], $t_query);
+// with new approach to query directly on the Manex server, there ain't any need to query Mantis DB. The following can be commented out.
+$response = HelperUTILS::mantis_search_result($qr["MANTIS_QUERY_CUSTOMER_FIND"], $t_query);
 // use json_encode($response["RESULT"]); to prepare Typeahead selectives
 
 $t_process = new dbUTILS();

@@ -7,14 +7,14 @@ UPDATE sample_table SET time_stamp = UNIX_TIMESTAMP(date_entered);*/
 // logic - require PHP 5.7 or higher
 $fn_db_update_customer = function ($file = "conf.ini"){
 	if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.');
-	$t_qr = $conf["QUERY_LAST_UPDATE"];
+	$t_qr = $conf["MANTIS_QUERY_LAST_UPDATE"];
 	$t_mocha = $conf["MOCHA_TEST"];
 	print_r($t_qr);
 };*/
 
 class HelperUTILS{
 	public static function input_string_valid($str){
-        return isset($str) && !empty($str);
+        return isset($str) && !empty($str); // && is_scalar($str)
     }
     public static function input_string_escape($inp) {
         if(is_array($inp))  return array_map(__METHOD__, $inp);
@@ -34,7 +34,7 @@ class HelperUTILS{
 		else
 			return $conf;
     }
-    public static function customer_search_result($query_string, $q){
+    public static function mantis_search_result($query_string, $q){
     	$response = [];
     	$response["RESULT"] = db_query_bound( $query_string );
     	$response["COUNT"] = db_num_rows( $result );
@@ -43,12 +43,12 @@ class HelperUTILS{
     public static function last_update_time ($query_string){
     	return mysql_query($query_string) or die(mysql_error());
     }
-    public static function getCurlData ($date){
+    public static function getCurlData ($http, $q, $status = '&status='){
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_URL, 'http://erp-2/ews/ManexWebService.asmx/GetCustomerByCutOffDate?Acct_Date='.$date.'&status=');
+		curl_setopt($ch, CURLOPT_URL, $http.$q.$status);
 		$result = curl_exec($ch);
 		curl_close($ch);
 
@@ -95,8 +95,10 @@ class dbUTILS{
 		$g_automatic_updated = true;
 		$g_button_clicked = true;
 		$g_counter = 0;
+		$http_customer = $qr["MANEX_HTTP_REQ_ACCT_DATE"];
+		$http_so_wo = $qr["MANEX_HTTP_REQ_SO_WO"];
 
-		$p_max_timestamp = HelperUTILS::last_update_time($qr["QUERY_LAST_UPDATE"]);
+		$p_max_timestamp = HelperUTILS::last_update_time($qr["MANTIS_QUERY_LAST_UPDATE"]);
 		$p_update_time_string = (string) date("m/d/Y", $p_unix_update_time);
 		$this->setRetrievalDate($p_update_time_string);
 
@@ -104,14 +106,14 @@ class dbUTILS{
 
 		if ($g_automatic_updated){
 			// execUpdate
-			$this->execUpdate(HelperUTILS::getCurlData($p_unix_update_time), $qr["QUERY_EXECUTE_UPDATE"]);
+			$this->execUpdate(HelperUTILS::getCurlData($http_customer, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
 			return $g_automatic_updated = false;
 		} else {
 			if ($g_counter<1){
 				$g_button_clicked = $p_unix_update_time - $p_max_timestamp > 60 && $g_button_clicked;
 				if ($g_button_clicked) {
 					// execUpdate
-					$this->execUpdate(HelperUTILS::getCurlData($p_unix_update_time), $qr["QUERY_EXECUTE_UPDATE"]);
+					$this->execUpdate(HelperUTILS::getCurlData($http_customer, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
 					$g_counter++;
 					return $g_button_clicked = false;
 				}
@@ -148,7 +150,7 @@ class dbUTILS{
 		// @todo: change this path to be consistent with outside your webroot
 		// $conf = parse_ini_file($this::CONFIG_FILE_PATH, TRUE)
 		if (!$conf = parse_ini_file($this::CONFIG_FILE_PATH, TRUE)) throw new exception('Unable to open ' . $this::CONFIG_FILE_PATH . '.');
-		// $t_qr = $conf["QUERY_LAST_UPDATE"];
+		// $t_qr = $conf["MANTIS_QUERY_LAST_UPDATE"];
 		// $t_mocha = $conf["MOCHA_TEST"];
 		$this->fn_db_update_customer = function(){
 			// $t_st = $this->$t_qr;
