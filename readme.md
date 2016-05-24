@@ -1,10 +1,4 @@
-	    ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___       ___   
-   /\  \     /\  \     /\__\     /\__\     /\  \     /\  \     /\  \     /\  \     /\  \     /\  \     /\  \     /\  \     /\  \     /\  \     /\__\     /\  \     /\__\  
-  /::\  \   /::\  \   /::L_L_   |::L__L   /::\  \   /::\  \    \:\  \   /::\  \   /::\  \   /::\  \    \:\  \   /::\  \   _\:\  \   /::\  \   /:/ _/_   /::\  \   /:/  /  
- /::\:\__\ /\:\:\__\ /:/L:\__\ /::::\__\ /:/\:\__\ /::\:\__\   /::\__\ /::\:\__\ /::\:\__\ /::\:\__\   /::\__\ /::\:\__\ /\/::\__\ /::\:\__\ |::L/\__\ /::\:\__\ /:/__/   
- \/\::/  / \:\:\/__/ \/_/:/  / \;::;/__/ \:\/:/  / \/\::/  /  /:/\/__/ \/\::/  / \;:::/  / \:\:\/  /  /:/\/__/ \;:::/  / \::/\/__/ \:\:\/  / |::::/  / \/\::/  / \:\  \   
-   /:/  /   \::/  /    /:/  /   |::|__|   \::/  /    /:/  /   \/__/      /:/  /   |:\/__/   \:\/  /   \/__/     |:\/__/   \:\__\    \:\/  /   L;;/__/    /:/  /   \:\__\  
-   \/__/     \/__/     \/__/     \/__/     \/__/     \/__/               \/__/     \|__|     \/__/               \|__|     \/__/     \/__/               \/__/     \/__/  
+ASMX-DATA-RETRIEVAL
 
     -----------------------------------------------------------------
 
@@ -20,4 +14,6 @@ The repo stresses on providing back-end functions and processing. The outcome of
 1) Testing connection to Manex server with cURLs through index.html (script.js is called).
 
 2) SYNC (UI-required, not yet provided): test_fn.php provides loading configuration from conf.ini and processing (through util_fn.php) of query input, retrieving result and inserting into a Mantis' table.
+
+
 3) NON-SYNC (UI-required, not yet provided): load conf.ini, retrieve data from getCurlData function in util_fn.php, the resulting data remains pending further actions.

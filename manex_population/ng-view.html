@@ -2,29 +2,46 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="js/jquery.js"></script>
-    <script src="js/angular.js"></script>
-    <script src="js/script.js"></script>
-    <!--<link href="styles.css" rel="stylesheet" />-->
+    <script src="../client/js/jquery.js"></script>
+    <script src="../client/js/angular.js"></script>
+    <script src="../client/js/manex_script.js"></script>
+    <link href="../client/css/bootstrap.css" rel="stylesheet" />
+    <link href="../client/css/manex_style.css" rel="stylesheet" />
 </head>
 <body ng-app="myModule">
+<div class="wrapper container">
+    <div class="so_wo">
+        <input id="field7" class="so_wo_field" type="text" size="100" name="sales_order" required/>
+    </div>
     <div ng-controller="myController">
-        <table>
+        <table border="1" style="color:#166CD7">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Name</th>
+                    <th>Index</th>
+                    <th>Uniq_key</th>
+                    <th>Customer_Id</th>
+                    <th>Customer_Name</th>
+                    <th>Due</th>
                     <th>Work_Order</th>
                     <th>Sale_Order</th>
+                    <th>Assembly</th>
+                    <th>Revision</th>
+                    <th>Quantity</th>
                     <th>Timestamp</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="order in orders">
                     <td>{{$index+1}}</td>
-                    <td>{{order.name}}</td>
+                    <td>{{order.key}}</td>
+                    <td>{{order.customer_id}}</td>
+                    <td>{{order.customer_name}}</td>
+                    <td>{{order.due_date}}</td>
                     <td>{{order.wo}}</td>
                     <td>{{order.so}}</td>
+                    <td>{{order.assembly}}</td>
+                    <td>{{order.revision}}</td>
+                    <td>{{order.qty}}</td>
                     <td>{{order.timestamp}}</td>
                 </tr>
             </tbody>
@@ -75,5 +92,6 @@
             </tbody>
         </table>
     </div>
+</div>
 </body>
 </html>

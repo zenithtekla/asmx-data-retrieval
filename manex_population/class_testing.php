@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once("core/lib_myclass.php");
+require_once("../core/lib_myclass.php");
 
 $today = date("Y/m/d");
 $st = '/ui/simple/'.myClass::JQUERY_UI_CSS;
@@ -16,10 +16,10 @@ curl_close($ch);
 $obj = json_decode($result);
 echo $result;
 
-$conf = parse_ini_file("conf.ini", true);
+$conf = parse_ini_file("../cfg/manex_conf.ini", true);
 print_r($conf);
 
-$qr = $conf["QUERY_LAST_UPDATE"];
+$qr = $conf["MANTIS_QUERY_LAST_UPDATE"];
 print_r($qr);
 
 
@@ -30,4 +30,7 @@ $loo = $myInstance->lambda;
 $loo();
 $too = $myInstance->beta;
 $too('ph');
+
+$topo = $myInstance->gamma;
+$topo();
 ?>

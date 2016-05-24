@@ -1,5 +1,4 @@
 <?php
-
 /*SELECT UNIX_TIMESTAMP(date_entered) FROM sample_table;
 UPDATE sample_table SET time_stamp = UNIX_TIMESTAMP(date_entered);*/
 // echo 'Current PHP version: ' . phpversion();
@@ -12,7 +11,10 @@ $fn_db_update_customer = function ($file = "conf.ini"){
 	print_r($t_qr);
 };*/
 
+
 class HelperUTILS{
+	const CFG_FILE = "../cfg/manex_conf.ini";
+
 	public static function input_string_valid($str){
         return isset($str) && !empty($str); // && is_scalar($str)
     }
@@ -28,7 +30,7 @@ class HelperUTILS{
         }
         return $inp;
     }
-    public static function load_conf($file = "conf.ini"){
+    public static function load_conf($file = $this::CFG_FILE){
     	// loading configured script
 		if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.')
 		else

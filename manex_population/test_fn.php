@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
-require_once("core/util_fn.php");
-require_once("core/date_time.php");
+require_once("../core/util_fn.php");
+require_once("../core/date_time.php");
 // TODO: include db_conn if needed
 
 echo getDateTime(). "\n\n"; // 86400 for daily update, 3600 for hourly updatek, 2764800 for monthly update
