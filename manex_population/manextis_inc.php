@@ -16,7 +16,7 @@
 header('Content-Type: application/json');
 define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
 define('__CFG_FILE__', __ROOT__.'cfg\manex_conf.ini');
-require_once __ROOT__.'core\util_fn.php';
+require_once __ROOT__.'core\manextis_utils.php';
 require_once __ROOT__.'core\date_time.php';
 
 
@@ -48,7 +48,6 @@ require_once __ROOT__. 'core\current_user_api.php';?>
 $t_unix_today = strtotime(getDateTime());
 echo $t_unix_today. "\n\n";
 // echo date("m/d/Y h:i:s a", $t_unix_today). "\n\n";
-// echo date("m/d/Y", $t_unix_today). "\n\n";
 
 // load query strings
 $qrs = HelperUTILS::load_conf(__CFG_FILE__);
@@ -66,8 +65,8 @@ $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_CUSTOMER_FIND"], $t_
 echo json_encode($response, JSON_PRETTY_PRINT);
 // use json_encode($response["RESULT"]); to prepare Typeahead selectives
 
-$t_process = new SkewChess();
-$args = [$qrs, $t_unix_today, $response["COUNT"], $_POST["query_trigger"]];
+$t_process = new SkewChess($t_unix_today);
+$args = [$qrs, $response["COUNT"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], date("m/d/Y", $t_unix_today)];
 $t_process->fn_database_update($args); // found 1 customer, skip further process.
 
 if ($qrs["MOCHA_TEST"] == true) {
@@ -77,7 +76,7 @@ if ($qrs["MOCHA_TEST"] == true) {
 $t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
 $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_SO_FIND"], $t_query);
 echo json_encode($response, JSON_PRETTY_PRINT);
-$args = [$qrs, $t_unix_today, $response["COUNT"], $_POST["query_trigger"]];
+$args = [$qrs, $response["COUNT"], $qrs["MANEX_HTTP_REQ_SO_WO"], $_POST["query_trigger"]];
 $t_process->fn_database_update($args);
 ?>
 </pre>

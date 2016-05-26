@@ -84,9 +84,8 @@ class HelperUTILS{
 }
 
 class SkewChess{
-
-	function __construct($retrieval_date = "03/01/2016") {
-		$this->retrieval_date = $retrieval_date;
+	function __construct($retrieval_date ="") {
+		$this->retrieval_date = date("m/d/Y", $retrieval_date);
 	}
 
 	function getRetrievalDate(){
@@ -107,55 +106,17 @@ class SkewChess{
 			db_query_bound($p_qr_execute_update);
 		}*/
 	}
-
-	function LetippEx(){
-		$args = func_get_args();
-		$params = $args[0];
-
-		if(isset($params[0]) && is_array($params[0]))
-			$qr = $params[0];
-		$p_unix_update_time = $params[1];
-		$p_query_trigger = $params[2];
-		// TODO: appoint these boolean somewhere
-		$g_automatic_updated = true;
-		$g_button_clicked = true;
-		$g_counter = 0;
-		// print_r($qr[0][0]);
-		// print_r($qr["MANEX_HTTP_REQ_ACCT_DATE"]);
-		$http_customer = $qr["MANEX_HTTP_REQ_ACCT_DATE"];
-		$http_so_wo = $qr["MANEX_HTTP_REQ_SO_WO"];
-
-		echo HelperUTILS::getCurlData($http_so_wo, $p_query_trigger);
-		// $this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_query_trigger), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
-
-		/*$p_max_timestamp = HelperUTILS::last_update_time($qr["MANTIS_QUERY_LAST_UPDATE"]);
-
-		$p_update_time_string = (string) date("m/d/Y", $p_unix_update_time);
-		$this->setRetrievalDate($p_update_time_string);
-
-		$g_automatic_updated = $p_unix_update_time - $p_max_timestamp > 3600 && $g_automatic_updated;
-
-		if ($g_automatic_updated){
-			// execUpdate
-			$this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
-			return $g_automatic_updated = false;
-		} else {
-			if ($g_counter<1){
-				$g_button_clicked = $p_unix_update_time - $p_max_timestamp > 60 && $g_button_clicked;
-				if ($g_button_clicked) {
-					// execUpdate
-					$this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
-					$g_counter++;
-					return $g_button_clicked = false;
-				}
-			}
-		}*/
-	}
-
 	function announceTesting($p_query_trigger){
 		echo "\n\n -=- MOCHA Testing ". $p_query_trigger ." -=- \n\n";
 	}
+	function LetippEx(){
+		$args = func_get_args();
+		$http_request = $args[0];
+		$p_query_trigger = $args[1];
 
+		echo HelperUTILS::getCurlData($http_request, $p_query_trigger);
+		// $this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_query_trigger), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
+	}
 	function fn_database_update (){
 		$args = func_get_args();
 		$params = $args[0];
@@ -163,20 +124,19 @@ class SkewChess{
 		if(isset($params[0]) && is_array($params[0]))
 			$qrs = $params[0];
 
-		$p_unix_update_time = $params[1];
-		$count= $params[2];
-		$p_query_trigger = $params[3];
+		$count= $params[1];
+		$http_request= $params[2];
+		$p_query_trigger= $params[3];
+
 		$t_mocha = $qrs["MOCHA_TEST"];
 		if ($t_mocha){
 			$this->announceTesting($p_query_trigger);
-			$args = [$qrs, $p_unix_update_time, $p_query_trigger];
-			$this->LetippEx($args);
+			$this->LetippEx($http_request, $p_query_trigger);
 			// TODO: write test case
 		} else {
 			if($count<1){
 				echo "HERE <1";
-				$args = [$qrs, $p_unix_update_time, $p_query_trigger];
-				$this->LetippEx($args);
+				$this->LetippEx($http_request, $p_query_trigger);
 			}
 		}
 	}
