@@ -1,19 +1,15 @@
 <?php
-/*SELECT UNIX_TIMESTAMP(date_entered) FROM sample_table;
-UPDATE sample_table SET time_stamp = UNIX_TIMESTAMP(date_entered);*/
-// echo 'Current PHP version: ' . phpversion();
-/*
-// logic - require PHP 5.7 or higher
-$fn_db_update_customer = function ($file = "conf.ini"){
-	if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.');
-	$t_qr = $conf["MANTIS_QUERY_LAST_UPDATE"];
-	$t_mocha = $conf["MOCHA_TEST"];
-	print_r($t_qr);
-};*/
-
+/**
+	* @package DbSkewer
+	* @copyright [Env-System] Copyright (C) 2002 - 2014  MantisBT Team - mantisbt-dev@lists.sourceforge.net
+	* @copyright [OnTop-Dev] Copyright (C) 2016 ZeTek - https://github.com/zenithtekla
+	*/
+	/**
+	* DbSkewer CoreAPI
+*/
 
 class HelperUTILS{
-	const CFG_FILE = "../cfg/manex_conf.ini";
+	const CFG_FILE = "cfg/manex_conf.ini";
 
 	public static function input_string_valid($str){
         return isset($str) && !empty($str); // && is_scalar($str)
@@ -21,7 +17,7 @@ class HelperUTILS{
     public static function input_string_escape($inp) {
         if(is_array($inp))  return array_map(__METHOD__, $inp);
 
-        if(input_string_valid($inp)) {
+        if(self::input_string_valid($inp)) {
             return str_replace(
                 array('\\', "\0", "\n", "\r", "'", '"', "\x1a"),
                 array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'),
@@ -30,40 +26,64 @@ class HelperUTILS{
         }
         return $inp;
     }
-    public static function load_conf($file = $this::CFG_FILE){
-    	// loading configured script
-		if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.')
-		else
-			return $conf;
+    public static function load_conf(){
+    	$args = func_get_args();
+    	$numargs = func_num_args();
+    	if (empty($args)) {
+    		$file = self::CFG_FILE;
+    		if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.');
+			else
+				$config = $conf;
+    	} else {
+    		foreach ($args as $key => $file) {
+    			// loading configured script
+				if (!$conf = parse_ini_file($file, TRUE)) throw new exception('Unable to open ' . $file . '.');
+				else {
+					if ($numargs == 1)
+						$config= $conf;
+					else
+						$config[]= $conf;
+				}
+    		}
+    	}
+		return $config;
     }
-    public static function mantis_search_result($query_string, $q){
+    public static function mantis_db_query($query_string, $q){
     	$response = [];
-    	$response["RESULT"] = db_query_bound( $query_string );
+		$query = sprintf($query_string, $q);
+
+    	/*$query = $query_string . db_param();
+    	// $query = str_replace('%s', db_param(), $query);
+    	$query = db_prepare_string($query);
+    	$result = db_query_bound( $qr, [$q] );*/
+
+    	$result = db_query_bound( $query );
     	$response["COUNT"] = db_num_rows( $result );
+    	if ($response["COUNT"] == 1)
+    		$response["RESULT"] = db_result($result);
+    	else {
+	    	for ($i=0; $i<$response["COUNT"]; $i++ ){
+	    		$response["RESULT"][] = db_fetch_array($result);
+	    	}
+    	}
+    	// $response["RESULT"] = mysql_query( $query );
     	return $response;
     }
-    public static function last_update_time ($query_string){
+    /*public static function last_update_time ($query_string){
     	return mysql_query($query_string) or die(mysql_error());
-    }
+    }*/
     public static function getCurlData ($http, $q, $status = '&status='){
-
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, $http.$q.$status);
 		$result = curl_exec($ch);
 		curl_close($ch);
-
-		$obj = json_decode($result);
-
-		/*foreach ($obj as $val){
-			echo $val->ACCT_DATE. "\t";
-		}*/
 		return $result;
 	}
 }
 
-class dbUTILS{
+class SkewChess{
 
 	function __construct($retrieval_date = "03/01/2016") {
 		$this->retrieval_date = $retrieval_date;
@@ -76,31 +96,40 @@ class dbUTILS{
 		return $this->retrieval_date = $val;
 	}
 
-	function execUpdate($p_Curl_result, $p_qr_execute_update){
+	function further_glueing($p_Curl_result, $p_qr_execute_update){
 		$obj = json_decode($p_Curl_result);
-		foreach ($obj as $val){
+		return $obj;
+		/*foreach ($obj as $val){
 			// TODO: refering to the UTIL class containing input_string_escape function
 			// to replace the $this->input_string_escape
 			$p_customer_name = HelperUTILS::input_string_escape($val->CUST_NAME);
 			$p_timestamp = $val->ACCT_DATE;
 			db_query_bound($p_qr_execute_update);
-		}
+		}*/
 	}
 
-	function updateCustomer(){
+	function LetippEx(){
 		$args = func_get_args();
+		$params = $args[0];
 
-		if(isset($args[0]) && is_array($args[0]))
-			$qr = $args[0];
-		$p_unix_update_time = $args[1];
+		if(isset($params[0]) && is_array($params[0]))
+			$qr = $params[0];
+		$p_unix_update_time = $params[1];
+		$p_query_trigger = $params[2];
 		// TODO: appoint these boolean somewhere
 		$g_automatic_updated = true;
 		$g_button_clicked = true;
 		$g_counter = 0;
+		// print_r($qr[0][0]);
+		// print_r($qr["MANEX_HTTP_REQ_ACCT_DATE"]);
 		$http_customer = $qr["MANEX_HTTP_REQ_ACCT_DATE"];
 		$http_so_wo = $qr["MANEX_HTTP_REQ_SO_WO"];
 
-		$p_max_timestamp = HelperUTILS::last_update_time($qr["MANTIS_QUERY_LAST_UPDATE"]);
+		echo HelperUTILS::getCurlData($http_so_wo, $p_query_trigger);
+		// $this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_query_trigger), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
+
+		/*$p_max_timestamp = HelperUTILS::last_update_time($qr["MANTIS_QUERY_LAST_UPDATE"]);
+
 		$p_update_time_string = (string) date("m/d/Y", $p_unix_update_time);
 		$this->setRetrievalDate($p_update_time_string);
 
@@ -108,59 +137,47 @@ class dbUTILS{
 
 		if ($g_automatic_updated){
 			// execUpdate
-			$this->execUpdate(HelperUTILS::getCurlData($http_customer, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
+			$this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
 			return $g_automatic_updated = false;
 		} else {
 			if ($g_counter<1){
 				$g_button_clicked = $p_unix_update_time - $p_max_timestamp > 60 && $g_button_clicked;
 				if ($g_button_clicked) {
 					// execUpdate
-					$this->execUpdate(HelperUTILS::getCurlData($http_customer, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
+					$this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_unix_update_time), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
 					$g_counter++;
 					return $g_button_clicked = false;
 				}
 			}
-		}
+		}*/
 	}
 
-	function sayHello(){
-		echo "\n\n -=- MOCHA Testing -=- \n\n";
+	function announceTesting($p_query_trigger){
+		echo "\n\n -=- MOCHA Testing ". $p_query_trigger ." -=- \n\n";
 	}
 
-	function fn_database_update_customer (){
+	function fn_database_update (){
 		$args = func_get_args();
-		if(isset($args[0]) && is_array($args[0]))
-			$qr = $args[0];
-		$p_unix_update_time = $args[1],
-		$count= $args[2];
+		$params = $args[0];
+		// echo json_encode($args, JSON_PRETTY_PRINT);
+		if(isset($params[0]) && is_array($params[0]))
+			$qrs = $params[0];
 
-		$t_mocha = $qr["MOCHA_TEST"];
+		$p_unix_update_time = $params[1];
+		$count= $params[2];
+		$p_query_trigger = $params[3];
+		$t_mocha = $qrs["MOCHA_TEST"];
 		if ($t_mocha){
-			$this->sayHello();
+			$this->announceTesting($p_query_trigger);
+			$args = [$qrs, $p_unix_update_time, $p_query_trigger];
+			$this->LetippEx($args);
 			// TODO: write test case
 		} else {
 			if($count<1){
-				$args = [$qr, $p_unix_update_time];
-				$this->updateCustomer($args);
+				echo "HERE <1";
+				$args = [$qrs, $p_unix_update_time, $p_query_trigger];
+				$this->LetippEx($args);
 			}
 		}
 	}
 }
-/*class dbUTILS{
-	const CONFIG_FILE_PATH = "conf.ini";
-	function __construct() {
-		// @todo: change this path to be consistent with outside your webroot
-		// $conf = parse_ini_file($this::CONFIG_FILE_PATH, TRUE)
-		if (!$conf = parse_ini_file($this::CONFIG_FILE_PATH, TRUE)) throw new exception('Unable to open ' . $this::CONFIG_FILE_PATH . '.');
-		// $t_qr = $conf["MANTIS_QUERY_LAST_UPDATE"];
-		// $t_mocha = $conf["MOCHA_TEST"];
-		$this->fn_db_update_customer = function(){
-			// $t_st = $this->$t_qr;
-			print_r($conf);
-			$t_unix_update_time = strtotime(getDateTime());
-			echo $t_unix_update_time. " ". " bravo! \n\n";
-			$t_max_timestamp = "qr";
-		};
-	}
-}*/
-
