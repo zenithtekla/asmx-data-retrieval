@@ -92,7 +92,7 @@ class SkewChess{
 		return $this->retrieval_date;
 	}
 	function setRetrievalDate($val){
-		return $this->retrieval_date = $val;
+		return $this->retrieval_date = date("m/d/Y", $val);
 	}
 
 	function further_glueing($p_Curl_result, $p_qr_execute_update){
@@ -113,7 +113,7 @@ class SkewChess{
 		$args = func_get_args();
 		$http_request = $args[0];
 		$p_query_trigger = $args[1];
-
+		// print_r($http_request, $p_query_trigger);
 		echo HelperUTILS::getCurlData($http_request, $p_query_trigger);
 		// $this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_query_trigger), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
 	}
@@ -131,11 +131,12 @@ class SkewChess{
 		$t_mocha = $qrs["MOCHA_TEST"];
 		if ($t_mocha){
 			$this->announceTesting($p_query_trigger);
-			$this->LetippEx($http_request, $p_query_trigger);
-			// TODO: write test case
+			if($count<1)
+				$this->LetippEx($http_request, $p_query_trigger);
 		} else {
 			if($count<1){
 				echo "HERE <1";
+				print_r($http_request, $p_query_trigger);
 				$this->LetippEx($http_request, $p_query_trigger);
 			}
 		}

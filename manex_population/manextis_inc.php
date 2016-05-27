@@ -66,7 +66,9 @@ echo json_encode($response, JSON_PRETTY_PRINT);
 // use json_encode($response["RESULT"]); to prepare Typeahead selectives
 
 $t_process = new SkewChess($t_unix_today);
-$args = [$qrs, $response["COUNT"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], date("m/d/Y", $t_unix_today)];
+$t_retrieval_data = ($qrs["MOCHA_TEST"]) ? "05/23/2016" : date("m/d/Y", $t_unix_today);
+$args = [$qrs, $response["COUNT"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], $t_retrieval_data];
+
 $t_process->fn_database_update($args); // found 1 customer, skip further process.
 
 if ($qrs["MOCHA_TEST"] == true) {
