@@ -69,9 +69,6 @@ class HelperUTILS{
     	// $response["RESULT"] = mysql_query( $query );
     	return $response;
     }
-    /*public static function last_update_time ($query_string){
-    	return mysql_query($query_string) or die(mysql_error());
-    }*/
     public static function getCurlData ($http, $q, $status = '&status='){
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -86,13 +83,6 @@ class HelperUTILS{
 class SkewChess{
 	function __construct($retrieval_date ="") {
 		$this->retrieval_date = date("m/d/Y", $retrieval_date);
-	}
-
-	function getRetrievalDate(){
-		return $this->retrieval_date;
-	}
-	function setRetrievalDate($val){
-		return $this->retrieval_date = date("m/d/Y", $val);
 	}
 
 	function further_glueing($p_Curl_result, $p_qr_execute_update){
@@ -113,14 +103,12 @@ class SkewChess{
 		$args = func_get_args();
 		$http_request = $args[0];
 		$p_query_trigger = $args[1];
-		// print_r($http_request, $p_query_trigger);
 		echo HelperUTILS::getCurlData($http_request, $p_query_trigger);
 		// $this->execUpdate(HelperUTILS::getCurlData($http_so_wo, $p_query_trigger), $qr["MANTIS_QUERY_EXECUTE_UPDATE"]);
 	}
 	function fn_database_update (){
 		$args = func_get_args();
 		$params = $args[0];
-		// echo json_encode($args, JSON_PRETTY_PRINT);
 		if(isset($params[0]) && is_array($params[0]))
 			$qrs = $params[0];
 
