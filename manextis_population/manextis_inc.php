@@ -15,7 +15,7 @@
 
 header('Content-Type: application/json');
 define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
-define('__CFG_FILE__', __ROOT__.'cfg\manex_conf.ini');
+define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
 require_once __ROOT__.'core\manextis_utils.php';
 require_once __ROOT__.'core\date_time.php';
 
@@ -25,7 +25,7 @@ require_once __ROOT__.'core\date_time.php';
 }
 
 loadCore();
-// require_once dirname(__FILE__). '\manex_test_config.php';
+// require_once dirname(__FILE__). '\manextis_test_config.php';
 // require_once dirname(__FILE__). '\tests\TestConfig.php';
 require_mantis_core();
 require_once 'core/utility_api.php';
@@ -55,31 +55,37 @@ $qrs = HelperUTILS::load_conf(__CFG_FILE__);
 if ($qrs["MOCHA_TEST"] == true) {
 	$_POST["query_trigger"] = "asiakas1";
 }
-
+$result["Mocha"] = $qrs["MOCHA_TEST"];
+$result["queryExeTime"] = $t_unix_today;
 
 $t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
+$result["queryTrigger_1"] = $t_query;
 
 // with . The following can be commented out.
 $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_CUSTOMER_FIND"], $t_query);
-
-echo json_encode($response, JSON_PRETTY_PRINT);
-// use json_encode($response["RESULT"]); to prepare Typeahead selectives
+$result["RESPONSE_1"] = $response;
+// use json_encode($response["response"]); to prepare Typeahead selectives
 
 $t_process = new SkewChess($t_unix_today);
 $t_retrieval_data = ($qrs["MOCHA_TEST"]) ? "05/23/2016" : date("m/d/Y", $t_unix_today);
-$args = [$qrs, $response["COUNT"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], $t_retrieval_data];
+$args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], $t_retrieval_data];
 
-$t_process->fn_database_update($args); // found 1 customer, skip further process.
+$response = $t_process->fn_skew_manexDb($args); // found 1 customer, skip further process.
+$result["RESPONSE_11"] = $response;
 
 if ($qrs["MOCHA_TEST"] == true) {
 	$_POST["query_trigger"] = "00091519A";
 }
 
 $t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
+$result["queryTrigger_2"] = $t_query;
 $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_SO_FIND"], $t_query);
-echo json_encode($response, JSON_PRETTY_PRINT);
-$args = [$qrs, $response["COUNT"], $qrs["MANEX_HTTP_REQ_SO_WO"], $_POST["query_trigger"]];
-$t_process->fn_database_update($args);
+$result["RESPONSE_2"] = $response;
+
+$args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_SO_WO"], $_POST["query_trigger"]];
+$response = $t_process->fn_skew_manexDb($args);
+$result["RESPONSE_22"] = $response;
+echo json_encode($result, JSON_PRETTY_PRINT);
 ?>
 </pre>
 </div>

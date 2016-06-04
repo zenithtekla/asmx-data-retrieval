@@ -2,18 +2,33 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="../client/js/jquery.js"></script>
-    <script src="../client/js/angular.js"></script>
-    <script src="../client/js/manex_script.js"></script>
-    <link href="../client/css/bootstrap.css" rel="stylesheet" />
-    <link href="../client/css/manex_style.css" rel="stylesheet" />
+    <script src="client/js/jquery.js"></script>
+    <script src="client/js/angular.js"></script>
+    <script src="client/js/moment.min.js"></script>
+    <script src="client/js/angular-momentjs.min.js"></script>
+    <script src="client/js/manextis.client.filters.js"></script>
+    <script src="client/js/manextis.client.directives.js"></script>
+    <script src="client/js/manextis.client.controller.js"></script>
+    <link href="client/css/bootstrap.css" rel="stylesheet" />
+    <link href="client/css/manextis.client.style.css" rel="stylesheet" />
 </head>
 <body ng-app="myModule">
-<div class="wrapper container table-container">
+<div class="wrapper container table-container" ng-controller="myController">
     <div class="so_wo">
-        <input id="field7" class="so_wo_field" type="text" size="100" name="sales_order" required/>
+        <label> Mocha test<input type="checkbox" ng-model='mochaBox' ng-init="mochaBox=false"></label>
+        <input id="field7" class="so_wo_field" type="text" size="100" name="sales_order" ng-model='query' required/>
+        <span ng-show="query">Search for "{{query}}"</span>
+        <span ng-show="!query">Search...</span>
+
+        <br><br>
+        dirURL : {{dirURL}} <br><br>
+        Search : {{currSearch}} <br><br>
+        Result:
+        <result-fetch ng-show="!no_result" ng-init="no_result=true"></result-fetch>
+        <button ng-click="sampleToggle()">Sample dataDump</button>
     </div>
-    <div ng-controller="myController">
+
+    <div ng-hide="theInvisible">
         <table border="1" style="color:#166CD7">
             <thead>
                 <tr>

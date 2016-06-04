@@ -16,7 +16,7 @@ curl_close($ch);
 $obj = json_decode($result);
 echo $result;
 
-$conf = parse_ini_file("../cfg/manex_conf.ini", true);
+$conf = parse_ini_file("../cfg/manextis_conf.ini", true);
 print_r($conf);
 
 $qr = $conf["MANTIS_QUERY_LAST_UPDATE"];

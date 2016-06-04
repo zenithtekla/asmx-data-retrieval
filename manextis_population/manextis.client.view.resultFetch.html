@@ -1,0 +1,34 @@
+<table border="1" style="color:#166CD7">
+    <thead>
+        <tr>
+            <th>Index</th>
+            <th>Mocha</th>
+            <th>Uniq_key</th>
+            <th>Customer_Id</th>
+            <th>Customer_Name</th>
+            <th>Due</th>
+            <th>Work_Order</th>
+            <th>Sale_Order</th>
+            <th>Assembly</th>
+            <th>Revision</th>
+            <th>Quantity</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="item in manextis">
+            <td>{{$index+1}}</td>
+            <td>{{Mocha.test | boolText}}</td>
+            <td>{{item.key}}</td>
+            <td>{{item.customer_id}}</td>
+            <td>{{item.customer_name}}</td>
+            <td>{{item.due_date}}</td>
+            <td>{{item.wo}}</td>
+            <td>{{item.so}}</td>
+            <td>{{item.assembly}}</td>
+            <td>{{item.revision}}</td>
+            <td>{{item.qty}}</td>
+            <td>{{item.timestamp | dateFormat}}</td>
+        </tr>
+    </tbody>
+</table>

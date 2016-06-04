@@ -1,22 +1,31 @@
 (function () {
   'use strict';
-var URL_ACQUIRE_DATE = "../model/manex_test_acquire_date.php";
-var URL_SO_WO = "../model/manex_test_so_wo.php";
-var URL_JSON_SAMPLE = "../sample_data/manex_sample_json.json";
+var URL_ACQUIRE_DATE = 'model/manextis_test_acquire_date.php';
+var URL_SO_WO = 'model/manextis_test_so_wo.php';
+var URL_JSON_SAMPLE = 'sample_data/manextis_sample_json.json';
 
 // [1,2,3].map(n => console.log(n + 1));
 var app = angular
-    .module("myModule", [])
-    .controller("myController", myCtrlFn);
+    .module('myModule', ['manextis.filter', 'manextis.directive', 'angular-momentjs'])
+    .controller('myController', myCtrlFn);
 
-function myCtrlFn ($scope, $http) {
+function myCtrlFn ($scope, $http, $location) {
     $http.defaults.headers.post['dataType'] = 'json';
     $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-    var params = "03/01/2016";
+    var relUrl = $location.absUrl();
+    relUrl = relUrl.substring(0, relUrl.lastIndexOf('/'));
+    $scope.dirURL = relUrl;
+    console.log("my current#Url: ", window.location.href);
 
-    $http.get(URL_ACQUIRE_DATE)
+    $scope.theInvisible = true;
+    $scope.sampleToggle = function() {
+        $scope.theInvisible = !$scope.theInvisible;
+    };
+    /* ---------------------------------------------------------
+    Sample dataDump
+    ----------------------------------------------------------*/
+    $http.get(relUrl + "/" + URL_ACQUIRE_DATE)
       .then(function (response) {
-        console.log("8) data received");
         $scope.custs = response.data;
         var o = {};
         response.data.map(function(d,idx){
@@ -29,7 +38,7 @@ function myCtrlFn ($scope, $http) {
         console.log(o);
         $scope.customers = o;
       });
-    $http.get(URL_SO_WO)
+    $http.get(relUrl + "/" + URL_SO_WO)
       .then(function (response) {
         console.log("8) data received");
         $scope.custs = response.data;
@@ -51,13 +60,12 @@ function myCtrlFn ($scope, $http) {
         console.log(o);
         $scope.orders = o;
       });
-
-    $http.get(URL_JSON_SAMPLE)
+    $http.get(relUrl + "/" + URL_JSON_SAMPLE)
      .then(function (response) {
         console.log(JSON.stringify(response.data));
         $scope.mutants = JSON.stringify(response.data);
         $scope.marvels = response.data;
-     });
+    });
 };
 
 }());
