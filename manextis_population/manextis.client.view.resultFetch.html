@@ -22,7 +22,7 @@
             <td>{{item.key}}</td>
             <td>{{item.customer_id}}</td>
             <td>{{item.customer_name}}</td>
-            <td>{{item.due_date}}</td>
+            <td>{{item.due_date | dateFormat}}</td>
             <td>{{item.wo}}</td>
             <td>{{item.so}}</td>
             <td>{{item.assembly}}</td>
@@ -32,3 +32,5 @@
         </tr>
     </tbody>
 </table>
+<br>
+<br>

@@ -36,50 +36,50 @@ require_once __ROOT__.'core.php';
 require_once __ROOT__. 'core\config_api.php';
 require_once __ROOT__. 'core\current_user_api.php';?>
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head></head>
-<body>
-<div class="wrapper container table-container">
 <pre>
 <?php
 /*echo getDateTime(). "\n\n"; // 86400 for daily update, 3600 for hourly updatek, 2764800 for monthly update*/
 
 $t_unix_today = strtotime(getDateTime());
-echo $t_unix_today. "\n\n";
 // echo date("m/d/Y h:i:s a", $t_unix_today). "\n\n";
 
 // load query strings
 $qrs = HelperUTILS::load_conf(__CFG_FILE__);
+$t_mocha_test = $qrs["MOCHA_TEST"];
 
-if ($qrs["MOCHA_TEST"] == true) {
-	$_POST["query_trigger"] = "asiakas1";
-}
-$result["Mocha"] = $qrs["MOCHA_TEST"];
-$result["queryExeTime"] = $t_unix_today;
+$t_query_trigger = ($t_mocha_test) ? "asiakas1" : ($_POST["query_trigger"] || "");
 
-$t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
-$result["queryTrigger_1"] = $t_query;
-
+$t_query = HelperUTILS::input_string_escape($t_query_trigger);
 // with . The following can be commented out.
 $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_CUSTOMER_FIND"], $t_query);
-$result["RESPONSE_1"] = $response;
+
+$result = [
+	"Mocha" => $t_mocha_test,
+	"queryExeTime" => $t_unix_today,
+	"queryTrigger_1" => $t_query,
+	"RESPONSE_1" => $response
+];
 // use json_encode($response["response"]); to prepare Typeahead selectives
 
 $t_process = new SkewChess($t_unix_today);
 $t_retrieval_data = ($qrs["MOCHA_TEST"]) ? "05/23/2016" : date("m/d/Y", $t_unix_today);
 $args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], $t_retrieval_data];
 
-$response = $t_process->fn_skew_manexDb($args); // found 1 customer, skip further process.
+$response = $t_process->fn_skew_manexDb($args); // once found 1 customer, skip further process.
 $result["RESPONSE_11"] = $response;
 
-if ($qrs["MOCHA_TEST"] == true) {
-	$_POST["query_trigger"] = "00091519A";
-}
+/* ---
+		END RESPONSE_1
+		BEGIN RESPONSE_2
+   ---
+*/
 
-$t_query = HelperUTILS::input_string_escape($_POST["query_trigger"]);
+$t_query_trigger = ($t_mocha_test) ? "00091519A" : ($_POST["query_trigger"] || "");
+
+$t_query = HelperUTILS::input_string_escape($t_query_trigger);
+$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND"], $t_query);
+
 $result["queryTrigger_2"] = $t_query;
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_SO_FIND"], $t_query);
 $result["RESPONSE_2"] = $response;
 
 $args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_SO_WO"], $_POST["query_trigger"]];
@@ -88,6 +88,3 @@ $result["RESPONSE_22"] = $response;
 echo json_encode($result, JSON_PRETTY_PRINT);
 ?>
 </pre>
-</div>
-</body>
-</html>

@@ -36,20 +36,20 @@ echo json_encode(array("mySearch" => $t_query_trigger), JSON_PRETTY_PRINT);*/
 $t_mocha_test = $_GET["Mocha"] === 'true' || $qrs["MOCHA_TEST"] == true;
 $t_query_trigger = ($t_mocha_test) ? "00091519A" : $_GET["query"];
 
-// $result["Mocha"] = $qrs["MOCHA_TEST"];
-$result["Mocha"] = $_GET["Mocha"];
-$result["queryExeTime"] = $t_unix_today;
 
 $t_query_trigger = HelperUTILS::input_string_escape($t_query_trigger);
-$result["queryTrigger"] = $t_query_trigger;
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_SO_FIND"], $t_query_trigger);
+$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND"], $t_query_trigger);
 /* To find the remaining fields;
 if ($response["count"] > 0) {
     //do another HelperUTILS::mantis_db_query with join.SQL.query and return $response
 	$response = HelperUTILS::mantis_db_query($qrs["EXTRA_QUERY"], args);
 }
 */
-
+$result = [
+	"Mocha" 			=> $t_mocha_test,
+	"queryExeTime" 		=> $t_unix_today,
+	"queryTrigger" 	=> $t_query_trigger
+];
 $result = array_merge($result, $response);
 
 $args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_SO_WO"], $t_query_trigger];
@@ -58,6 +58,9 @@ $t_process = new SkewChess();
 $response = $t_process->fn_skew_manexDb($args);
 if ($response)
 	$result["response"] = $response;
-
+?>
+<pre>
+<?php
 echo json_encode($result, JSON_PRETTY_PRINT);
 ?>
+</pre>

@@ -12,7 +12,6 @@ function resultFetch($location, $http){
 		        $scope.currSearch = $location.search();
 		        var data = $scope.currSearch;
 		        angular.extend(data, { Mocha: $scope.mochaBox});
-		        console.log(data);
 		        /*var data = {
 		            query: newVal
 		        };
@@ -34,23 +33,38 @@ function resultFetch($location, $http){
 		                test: res.data.Mocha
 		            };
 		            var o = {};
+		            if (typeof res.data ==='string'){
+			            res.data = res.data.replace(/(<pre>|<\/pre>)/g, '').trim();
+			            res.data = JSON.parse(res.data);
+		            }
+		            console.log(res.data);
 		            var jobj = (typeof res.data.response ==='string') ? JSON.parse(res.data.response) : res.data.response;
+		            try {
+		            	if (!jobj) throw new Error("Undefined object, response: ");
 		            $scope.no_result = (Object.keys(jobj).length === 0 || jobj == null) ? true : false;
-		            jobj.map(function(d,idx){
-		                o[idx] = {
-		                    key: d.UNIQ_KEY || '',
-		                    wo: d.WO_NO || '',
-		                    so: d.SO_NO || '',
-		                    due_date: d.DUE_DATE || '',
-		                    assembly: d.ASSY_NO || '',
-		                    revision: d.REVISION || '',
-		                    qty: d.QTY || '',
-		                    customer_id: d.CUST_PO_NO || '',
-		                    customer_name: d.CUST_NAME || '',
-		                    timestamp: Math.floor(Date.now() / 1000)
-		                };
-		            });
-		            $scope.manextis = o;
+
+		            	if ($scope.no_result) throw new Error("Unable to map the result object, response: ");
+			            jobj.map(function(d,idx){
+			                o[idx] = {
+			                    key: d.UNIQ_KEY || '',
+			                    wo: d.WO_NO || '',
+			                    so: d.SO_NO || '',
+			                    due_date: d.DUE_DATE || '',
+			                    assembly: d.ASSY_NO || '',
+			                    revision: d.REVISION || '',
+			                    qty: d.QTY || '',
+			                    customer_id: d.CUST_PO_NO || '',
+			                    customer_name: d.CUST_NAME || '',
+			                    timestamp: Math.floor(Date.now() / 1000)
+			                };
+			            });
+		            }
+		            catch(e) {
+		            	console.error(e.message, res.data.response);
+		            }
+		            finally {
+		            	$scope.manextis = o;
+		            }
 		        });
     		});
 		},

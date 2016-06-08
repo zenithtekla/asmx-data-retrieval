@@ -7,9 +7,9 @@ var URL_JSON_SAMPLE = 'sample_data/manextis_sample_json.json';
 // [1,2,3].map(n => console.log(n + 1));
 var app = angular
     .module('myModule', ['manextis.filter', 'manextis.directive', 'angular-momentjs'])
-    .controller('myController', myCtrlFn);
+    .controller('myController', ['$scope', '$http', '$location', '$interval', myCtrlFn]);
 
-function myCtrlFn ($scope, $http, $location) {
+function myCtrlFn ($scope, $http, $location, $interval) {
     $http.defaults.headers.post['dataType'] = 'json';
     $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
     var relUrl = $location.absUrl();
@@ -21,6 +21,7 @@ function myCtrlFn ($scope, $http, $location) {
     $scope.sampleToggle = function() {
         $scope.theInvisible = !$scope.theInvisible;
     };
+    $scope.Time = $interval(Math.round(new Date().getTime()/1000.0),1000);
     /* ---------------------------------------------------------
     Sample dataDump
     ----------------------------------------------------------*/
@@ -35,12 +36,10 @@ function myCtrlFn ($scope, $http, $location) {
                 timestamp: ((new Date(d.ACCT_DATE)).getTime() > 0) ? d.ACCT_DATE : (Date.parse(d.ACCT_DATE)/1000).toString()
             };
         });
-        console.log(o);
         $scope.customers = o;
       });
     $http.get(relUrl + "/" + URL_SO_WO)
       .then(function (response) {
-        console.log("8) data received");
         $scope.custs = response.data;
         var o = {};
         response.data.map(function(d,idx){
@@ -57,12 +56,10 @@ function myCtrlFn ($scope, $http, $location) {
                 timestamp: Math.floor(Date.now() / 1000)
             };
         });
-        console.log(o);
         $scope.orders = o;
       });
     $http.get(relUrl + "/" + URL_JSON_SAMPLE)
      .then(function (response) {
-        console.log(JSON.stringify(response.data));
         $scope.mutants = JSON.stringify(response.data);
         $scope.marvels = response.data;
     });
