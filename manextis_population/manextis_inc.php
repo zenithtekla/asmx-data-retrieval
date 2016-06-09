@@ -45,7 +45,7 @@ $t_unix_today = strtotime(getDateTime());
 
 // load query strings
 $qrs = HelperUTILS::load_conf(__CFG_FILE__);
-$t_mocha_test = $qrs["MOCHA_TEST"];
+$t_mocha_test = $qrs["MOCHA_TEST"] == true;
 
 $t_query_trigger = ($t_mocha_test) ? "asiakas1" : ($_POST["query_trigger"] || "");
 

@@ -50,11 +50,11 @@ class HelperUTILS{
     }
     public static function mantis_db_query($query_string, $q){
 	try {
+		$query_string = HelperUTILS::input_string_escape($query_string);
 		if (strpos($query_string, 'SELECT') === false) throw new Exception('Exception handler for query other than SELECT');
 
 		$response = [];
 		$query = call_user_func_array( 'sprintf', func_get_args());
-		// $query = (is_array($q)) ? vsprintf($query_string, $q) : sprintf($query_string, $q);
     	/*$query = $query_string . db_param();
     	// $query = str_replace('%s', db_param(), $query);
     	$query = db_prepare_string($query);
@@ -62,13 +62,11 @@ class HelperUTILS{
 
     	$result = db_query_bound( $query );
     	$response["count"] = db_num_rows( $result );
-    	if ($response["count"] == 1)
-    		$response["response"] = db_result($result);
-    	else {
-	    	for ($i=0; $i<$response["count"]; $i++ ){
-	    		$response["response"][] = db_fetch_array($result);
-	    	}
+    	if ($response["count"]>0)
+    	for ($i=0; $i<$response["count"]; $i++ ){
+    		$response["response"][] = db_fetch_array($result);
     	}
+
     	$response["query_str"] = $query;
 	}
 		catch (Exception $e){

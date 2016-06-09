@@ -27,7 +27,7 @@ $result = array_merge($result, ["res1" => $response]);
    ---
 */
 
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_SO_FIND"], $t_query_params); // [$t_query_param1, $t_query_param2]
+$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_SO_FIND"], $t_query_param1, $t_query_param2);
 $result = array_merge($result, ["res2" => $response]);
 
 /* ---

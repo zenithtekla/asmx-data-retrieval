@@ -38,11 +38,10 @@ $t_query_trigger = ($t_mocha_test) ? "00091519A" : $_GET["query"];
 
 
 $t_query_trigger = HelperUTILS::input_string_escape($t_query_trigger);
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND"], $t_query_trigger);
-/* To find the remaining fields;
-if ($response["count"] > 0) {
-    //do another HelperUTILS::mantis_db_query with join.SQL.query and return $response
-	$response = HelperUTILS::mantis_db_query($qrs["EXTRA_QUERY"], args);
+$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND_RELEVANTS"], $t_query_trigger);
+
+/*if ($response["count"] > 0) {
+    //do fn_skew_manexDb to find due and quantity base on ??
 }
 */
 $result = [

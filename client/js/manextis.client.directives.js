@@ -41,7 +41,7 @@ function resultFetch($location, $http){
 		            var jobj = (typeof res.data.response ==='string') ? JSON.parse(res.data.response) : res.data.response;
 		            try {
 		            	if (!jobj) throw new Error("Undefined object, response: ");
-		            $scope.no_result = (Object.keys(jobj).length === 0 || jobj == null) ? true : false;
+		            	$scope.no_result = (Object.keys(jobj).length === 0 || jobj == null) ? true : false;
 
 		            	if ($scope.no_result) throw new Error("Unable to map the result object, response: ");
 			            jobj.map(function(d,idx){
