@@ -21,7 +21,10 @@ function myCtrlFn ($scope, $http, $location, $interval) {
     $scope.sampleToggle = function() {
         $scope.theInvisible = !$scope.theInvisible;
     };
-    $scope.Time = $interval(Math.round(new Date().getTime()/1000.0),1000);
+    $scope.init = $interval( function(){
+        $scope.Time = Math.round(new Date().getTime()/1000.0);
+        $scope.formattedTime = $scope.Time;
+    }, 1000);
     /* ---------------------------------------------------------
     Sample dataDump
     ----------------------------------------------------------*/

@@ -9,6 +9,6 @@ function boolText(){
 }
 function dateFormat($moment){
     return function(time) {
-      	return (time) ? $moment.unix(time).format('MM/DD/YYYY - hh:mm a')  : time;
+      	return (time) ? $moment.unix(time).format('MM/DD/YYYY - hh:mm:ss a')  : time;
     };
 }

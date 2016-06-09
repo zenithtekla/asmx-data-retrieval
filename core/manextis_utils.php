@@ -53,8 +53,7 @@ class HelperUTILS{
 		if (strpos($query_string, 'SELECT') === false) throw new Exception('Exception handler for query other than SELECT');
 
 		$response = [];
-		if (!is_array($q)) $q = [$q];
-		$query = vsprintf($query_string, $q);
+		$query = call_user_func_array( 'sprintf', func_get_args());
 		// $query = (is_array($q)) ? vsprintf($query_string, $q) : sprintf($query_string, $q);
     	/*$query = $query_string . db_param();
     	// $query = str_replace('%s', db_param(), $query);
@@ -113,8 +112,8 @@ class SkewChess{
 		$args = func_get_args();
 		$http_request = $args[0];
 		$p_query_trigger = $args[1];
-		$t_result = HelperUTILS::getCurlData($http_request, $p_query_trigger);
-		return $t_result;
+		$result = HelperUTILS::getCurlData($http_request, $p_query_trigger);
+		return $result;
 	}
 	function fn_skew_manexDb (){
 		$args = func_get_args();

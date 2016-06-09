@@ -15,7 +15,8 @@
 <body ng-app="myModule">
 <div class="wrapper container table-container" ng-controller="myController">
     <div class="so_wo">
-        currentTime : {{Time}} <br><br>
+        currentTime :  {{Time}}<br>
+        formattedTime: {{formattedTime | dateFormat}}<br><br>
         <label> Mocha test<input type="checkbox" ng-model='mochaBox' ng-init="mochaBox=false"></label>
         <input id="field7" class="so_wo_field" type="text" size="100" name="sales_order" ng-model='query' required/>
         <span ng-show="query">Search for "{{query}}"</span>
