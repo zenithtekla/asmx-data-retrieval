@@ -10,6 +10,7 @@
 
 class HelperUTILS{
 	const CFG_FILE = "cfg/manextis_conf.ini";
+	protected static $id;
 
 	public static function input_string_valid($str){
         return isset($str) && !empty($str); // && is_scalar($str)
@@ -48,13 +49,45 @@ class HelperUTILS{
     	}
 		return $config;
     }
-    public static function mantis_db_query($query_string, $q){
+    public static function mantis_db_query_insert(){
 	try {
-		$query_string = HelperUTILS::input_string_escape($query_string);
-		if (strpos($query_string, 'SELECT') === false) throw new Exception('Exception handler for query other than SELECT');
-
 		$response = [];
-		$query = call_user_func_array( 'sprintf', func_get_args());
+		$args = func_get_args();
+ 		$query_word = ($args[0]==='INSERT') ? array_shift($args) : 'INSERT';
+		$params = $args;
+		if(is_array($args[1])){
+			foreach ($args[1] as $key => $value) {
+				$query_string = vsprintf($params[0], $value);
+				$query[] = $query_string;
+				$result[] = db_query_bound( $query_string );
+				$response["id"][] = db_insert_id('mantis_wo_so_table_test');
+			}
+		}
+		else {
+			$query = call_user_func_array( 'sprintf', $params);
+    		$result = db_query_bound( $query );
+    		$response["id"] = db_insert_id('mantis_wo_so_table_test');
+    	}
+
+    	$response["params"] = $params;
+    	$response["result"] = $result;
+    	$response["query_str"] = $query;
+    	$response["query_word"] = $query_word;
+	}
+		catch (Exception $e){
+			$response["response"] = "mantis_db_query ERROR: " . $e->getMessage();
+		}
+    	finally {
+    		return $response;
+    	}
+    }
+    public static function mantis_db_query_select(){
+	try {
+		$response = [];
+		$args = func_get_args();
+		$params = $args[1];
+		// $params[0] = HelperUTILS::input_string_escape($params[0]);
+		$query = call_user_func_array( 'sprintf', $params);
     	/*$query = $query_string . db_param();
     	// $query = str_replace('%s', db_param(), $query);
     	$query = db_prepare_string($query);
@@ -68,11 +101,47 @@ class HelperUTILS{
     	}
 
     	$response["query_str"] = $query;
+    	$response["query_word"] = $args[0];
 	}
 		catch (Exception $e){
 			$response["response"] = "mantis_db_query ERROR: " . $e->getMessage();
 		}
     	// $response["response"] = mysql_query( $query );
+    	finally {
+    		return $response;
+    	}
+    }
+    /**
+	 * Returns an array list of query result
+	 * @param [0] = $query_string
+	 * @param [1], [2].. = array of parameters to pass in a query function be invoked through swtich
+	 * @return array
+	 */
+    public static function mantis_db_query(){
+	try {
+		$params = func_get_args();
+		$query_string = $params[0];
+		if (strlen($query_string) > 12)
+			$query_word = substr($query_string, 0, 12);
+		switch (true) {
+			case stristr($query_word, 'INSERT'):
+				throw new Exception('Exception handler for INSERT query not yet included.');
+				break;
+			case stristr($query_word, 'SELECT'):
+				$response = self::mantis_db_query_select('SELECT', $params);
+				break;
+			case stristr($query_word, 'UPDATE'):
+				break;
+			case stristr($query_word, 'DELETE'):
+				break;
+			default:
+				throw new Exception('Exception handler for query not yet included.');
+				break;
+		}
+	}
+		catch (Exception $e){
+			$response["response"] = "mantis_db_query ERROR: " . $e->getMessage();
+		}
     	finally {
     		return $response;
     	}
@@ -103,9 +172,6 @@ class SkewChess{
 			db_query_bound($p_qr_execute_update);
 		}*/
 	}
-	function announceTesting($p_query_trigger){
-		return " -=- MOCHA Testing ". $p_query_trigger ." -=- ";
-	}
 	function getSkewedData(){
 		$args = func_get_args();
 		$http_request = $args[0];
@@ -125,7 +191,7 @@ class SkewChess{
 
 		$t_mocha = $qrs["MOCHA_TEST"];
 		if ($t_mocha){
-			$this->announceTesting($p_query_trigger);
+			// MOCHA Testing in progress
 			if($count<1)
 				return $this->getSkewedData($http_request, $p_query_trigger);
 		} else {

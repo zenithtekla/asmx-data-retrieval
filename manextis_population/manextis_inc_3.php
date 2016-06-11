@@ -38,6 +38,27 @@ $result = array_merge($result, ["res2" => $response]);
 
 $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_EXECUTE_UPDATE"], $t_query_trigger);
 $result = array_merge($result, ["res3" => $response]);
+
+/* ---
+		END RESPONSE_3
+		BEGIN RESPONSE_4
+   ---
+*/
+
+$response = HelperUTILS::mantis_db_query_insert('INSERT', $qrs["MANTIS_QUERY_INSERT_WO_TABLE"], 'wono4', 'sono4', 44, 444444, "_X444444");
+$result = array_merge($result, ["res4" => $response]);
+
+/* ---
+		END RESPONSE_4
+		BEGIN RESPONSE_5
+   ---
+*/
+
+$response = HelperUTILS::mantis_db_query_insert($qrs["MANTIS_QUERY_INSERT_WO_TABLE"], [
+	['wono3', 'sono3', 33, 333333, "_X333333"],
+	['wono2', 'sono2', 22, 222222, "_X222222"]
+]);
+$result = array_merge($result, ["res5" => $response]);
 ?>
 <pre>
 <?php echo json_encode($result, JSON_PRETTY_PRINT); ?>
