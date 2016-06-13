@@ -27,6 +27,49 @@ class HelperUTILS{
         }
         return $inp;
     }
+    public static function string_trim($str){
+    	return (self::input_string_valid($str)) ? trim($str) : 'ERROR unable to trim an invalid string!';
+    }
+    public static function array_diff_pairs_xt ($arr1, $arr2){
+		$result['arr1'] = $arr1;
+		$result['arr2'] = $arr2;
+		try {
+			foreach ($arr1 as $key => $value){
+				$arr1_val = self::string_trim($arr1[$key]);
+				$arr2_val = self::string_trim($arr2[$key]);
+				// if(!$arr2[$key]) throw new Exception( 'eRRoR!');
+				if(!$arr2_val) throw new Exception( 'eRRoR!');
+				if (strtolower($arr1_val) != strtolower($arr2_val)){
+					$result['response']['diff'][$key] = [ $arr1_val, $arr2_val ];
+					if($arr1_val == null)
+						$result['response']['null'][$key] = [ $arr1_val, $arr2_val ];
+				} else $result['response']['same'][$key] = [ $arr1[$key], $arr2[$key] ];
+				// 'as is' similarity
+			}
+		}
+		catch (Exception $e){
+			$result['response'] = "array_diff_pairs ERROR: " . $e->getMessage();
+		}
+		finally {
+			return $result;
+		}
+	}
+	public static function array_diff_pairs ($arr1, $arr2){
+		$result['arr1'] = $arr1;
+		$result['arr2'] = $arr2;
+		foreach ($arr1 as $key => $value){
+			$arr1_val = self::string_trim($arr1[$key]);
+			$arr2_val = self::string_trim($arr2[$key]);
+			if($arr1_val == null || $arr2_val == null)
+				$result['response']['null'][$key] = [ $arr1_val, $arr2_val ];
+			if (strtolower($arr1_val) != strtolower($arr2_val)){
+				$result['response']['diff'][$key] = [ $arr1_val, $arr2_val ];
+
+			} else $result['response']['same'][$key] = [ $arr1[$key], $arr2[$key] ];
+			// 'as is' similarity
+		}
+			return $result;
+	}
     public static function load_conf(){
     	$args = func_get_args();
     	$numargs = func_num_args();
