@@ -30,6 +30,21 @@ class HelperUTILS{
     public static function string_trim($str){
     	return (self::input_string_valid($str)) ? trim($str) : 'ERROR unable to trim an invalid string!';
     }
+    public static function string_no_spaces($str){
+    	return (self::input_string_valid($str)) ? preg_replace('/(\v|\s)+/', ' ', $str) : 'ERROR unable to trim spaces of an invalid string!';
+    }
+    public static function string_trim_strict($str){
+    	return (self::input_string_valid($str)) ? self::string_trim(self::string_no_spaces($str)) : 'ERROR unable to razor-trim an invalid string!';
+    }
+    public static function string_zero_prefix($str){
+    	return str_pad($str, 10 - strlen($str), '0', STR_PAD_LEFT);
+    }
+    /**
+	 * Returns an array list of query result
+	 * @param array1
+	 * @param array2
+	 * @return array.response listing elements of array1 (t) that is not part of array2 (x)
+	 */
     public static function array_diff_pairs_xt ($arr1, $arr2){
 		$result['arr1'] = $arr1;
 		$result['arr2'] = $arr2;
@@ -70,6 +85,15 @@ class HelperUTILS{
 		}
 			return $result;
 	}
+	/**
+	 * Returns an array list of query result
+	 * @param array1
+	 * @param array2
+	 * @return array listing (diff) elements out of intersection scope.
+	 */
+	public static function array_diff_merge($arr1, $arr2){
+		return array_merge(array_diff($a, $b), array_diff($b, $a));
+	}
     public static function load_conf(){
     	$args = func_get_args();
     	$numargs = func_num_args();
@@ -91,6 +115,27 @@ class HelperUTILS{
     		}
     	}
 		return $config;
+    }
+    public static function mantis_db_query_update(){
+	try {
+			$response = [];
+			$args = func_get_args();
+	 		$query_word = ($args[0]==='UPDATE') ? array_shift($args) : 'UPDATE';
+			$params = $args;
+
+			$query = call_user_func_array( 'sprintf', $params);
+			$result = db_query_bound( $query );
+			$response["params"] = $params;
+	    	$response["result"] = $result;
+	    	$response["query_str"] = self::string_trim_strict($query);
+	    	$response["query_word"] = $query_word;
+		}
+		catch (Exception $e){
+			$response["response"] = "mantis_db_query ERROR: " . $e->getMessage();
+		}
+    	finally {
+    		return $response;
+    	}
     }
     public static function mantis_db_query_insert(){
 	try {
@@ -114,7 +159,7 @@ class HelperUTILS{
 
     	$response["params"] = $params;
     	$response["result"] = $result;
-    	$response["query_str"] = $query;
+    	$response["query_str"] = self::string_trim($query);
     	$response["query_word"] = $query_word;
 	}
 		catch (Exception $e){
@@ -128,9 +173,9 @@ class HelperUTILS{
 	try {
 		$response = [];
 		$args = func_get_args();
-		$params = $args[1];
-		// $params[0] = HelperUTILS::input_string_escape($params[0]);
-		$query = call_user_func_array( 'sprintf', $params);
+		$query_word = ($args[0]==='SELECT') ? array_shift($args) : 'SELECT';
+		$params = $args;
+		$query = call_user_func_array( 'sprintf', $params[0]);
     	/*$query = $query_string . db_param();
     	// $query = str_replace('%s', db_param(), $query);
     	$query = db_prepare_string($query);
@@ -143,8 +188,8 @@ class HelperUTILS{
     		$response["response"][] = db_fetch_array($result);
     	}
 
-    	$response["query_str"] = $query;
-    	$response["query_word"] = $args[0];
+    	$response["query_str"] = self::string_trim_strict($query);
+    	$response["query_word"] = $query_word;
 	}
 		catch (Exception $e){
 			$response["response"] = "mantis_db_query ERROR: " . $e->getMessage();
@@ -163,7 +208,7 @@ class HelperUTILS{
     public static function mantis_db_query(){
 	try {
 		$params = func_get_args();
-		$query_string = $params[0];
+		$query_string = self::string_trim($params[0]);
 		if (strlen($query_string) > 12)
 			$query_word = substr($query_string, 0, 12);
 		switch (true) {

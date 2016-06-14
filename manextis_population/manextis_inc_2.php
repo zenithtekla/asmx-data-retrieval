@@ -19,6 +19,7 @@ define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
 require_once __ROOT__.'core\manextis_utils.php';
 require_once __ROOT__.'core\date_time.php';
 require_once __ROOT__.'core.php';
+// require_once __ROOT__.'core\gpc_api.php';
 
 // load datetime
 $t_unix_today = strtotime(getDateTime());
@@ -34,8 +35,7 @@ echo json_encode(array("mySearch" => $t_query_trigger), JSON_PRETTY_PRINT);*/
 // GET METHOD
 
 $t_mocha_test = $_GET["Mocha"] === 'true' || $qrs["MOCHA_TEST"] == true;
-$t_query_trigger = ($t_mocha_test) ? "00091519A" : $_GET["query"];
-
+$t_query_trigger = ($t_mocha_test) ? "00091519A" : HelperUTILS::string_zero_prefix($_GET["query"]);
 
 $t_query_trigger = HelperUTILS::input_string_escape($t_query_trigger);
 $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND_RELEVANTS"], $t_query_trigger);
@@ -47,7 +47,9 @@ $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND_RELEVANTS"],
 $result = [
 	"Mocha" 			=> $t_mocha_test,
 	"queryExeTime" 		=> $t_unix_today,
-	"queryTrigger" 	=> $t_query_trigger
+	"queryTrigger" 		=> $t_query_trigger
+	// "queryGpc_get"	=> gpc_get("query")
+	// "queryGpc_isset"	=> gpc_isset("query")
 ];
 $result = array_merge($result, $response);
 
