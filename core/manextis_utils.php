@@ -11,13 +11,11 @@
 class HelperUTILS{
 	const CFG_FILE = "cfg/manextis_conf.ini";
 	protected static $id;
-
 	public static function input_string_valid($str){
         return isset($str) && !empty($str); // && is_scalar($str)
     }
     public static function input_string_escape($inp) {
         if(is_array($inp))  return array_map(__METHOD__, $inp);
-
         if(self::input_string_valid($inp)) {
             return str_replace(
                 array('\\', "\0", "\n", "\r", "'", '"', "\x1a"),
@@ -79,7 +77,6 @@ class HelperUTILS{
 				$result['response']['null'][$key] = [ $arr1_val, $arr2_val ];
 			if (strtolower($arr1_val) != strtolower($arr2_val)){
 				$result['response']['diff'][$key] = [ $arr1_val, $arr2_val ];
-
 			} else $result['response']['same'][$key] = [ $arr1[$key], $arr2[$key] ];
 			// 'as is' similarity
 		}
@@ -122,7 +119,6 @@ class HelperUTILS{
 			$args = func_get_args();
 	 		$query_word = ($args[0]==='UPDATE') ? array_shift($args) : 'UPDATE';
 			$params = $args;
-
 			$query = call_user_func_array( 'sprintf', $params);
 			$result = db_query_bound( $query );
 			$response["params"] = $params;
@@ -156,7 +152,6 @@ class HelperUTILS{
     		$result = db_query_bound( $query );
     		$response["id"] = db_insert_id('mantis_wo_so_table_test');
     	}
-
     	$response["params"] = $params;
     	$response["result"] = $result;
     	$response["query_str"] = self::string_trim($query);
@@ -180,14 +175,12 @@ class HelperUTILS{
     	// $query = str_replace('%s', db_param(), $query);
     	$query = db_prepare_string($query);
     	$result = db_query_bound( $qr, [$q] );*/
-
     	$result = db_query_bound( $query );
     	$response["count"] = db_num_rows( $result );
     	if ($response["count"]>0)
     	for ($i=0; $i<$response["count"]; $i++ ){
     		$response["response"][] = db_fetch_array($result);
     	}
-
     	$response["query_str"] = self::string_trim_strict($query);
     	$response["query_word"] = $query_word;
 	}
@@ -246,9 +239,14 @@ class HelperUTILS{
 }
 
 class SkewChess{
-	function __construct($retrieval_date ="") {
-		// $this->retrieval_date = strtotime(date("m/d/Y", $retrieval_date));
-		$this->retrieval_date = $retrieval_date;
+	function __construct($query_trigger = '') {
+		$this->query_trigger = HelperUTILS::string_zero_prefix(HelperUTILS::input_string_escape($query_trigger));
+	}
+	function getQueryTrigger(){
+		return $this->query_trigger;
+	}
+	function setQueryTrigger($val){
+		$this->query_trigger = $val;
 	}
 
 	function fn_process_SkewedData($p_Curl_result, $p_qr_execute_update){
@@ -263,7 +261,7 @@ class SkewChess{
 	function getSkewedData(){
 		$args = func_get_args();
 		$http_request = $args[0];
-		$p_query_trigger = $args[1];
+		$p_query_trigger = $this->getQueryTrigger();
 		$result = HelperUTILS::getCurlData($http_request, $p_query_trigger);
 		return $result;
 	}
@@ -275,16 +273,15 @@ class SkewChess{
 
 		$count= $params[1];
 		$http_request= $params[2];
-		$p_query_trigger= $params[3];
 
 		$t_mocha = $qrs["MOCHA_TEST"];
 		if ($t_mocha){
 			// MOCHA Testing in progress
 			if($count<1)
-				return $this->getSkewedData($http_request, $p_query_trigger);
+				return $this->getSkewedData($http_request);
 		} else {
 			if($count<1){
-				return $this->getSkewedData($http_request, $p_query_trigger);
+				return $this->getSkewedData($http_request);
 			}
 		}
 	}

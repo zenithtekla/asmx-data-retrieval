@@ -35,10 +35,10 @@ echo json_encode(array("mySearch" => $t_query_trigger), JSON_PRETTY_PRINT);*/
 // GET METHOD
 
 $t_mocha_test = $_GET["Mocha"] === 'true' || $qrs["MOCHA_TEST"] == true;
-$t_query_trigger = ($t_mocha_test) ? "00091519A" : HelperUTILS::string_zero_prefix($_GET["query"]);
+$t_query_trigger = ($t_mocha_test) ? "91519A" : $_GET["query"];
+$t_process = new SkewChess($t_query_trigger);
 
-$t_query_trigger = HelperUTILS::input_string_escape($t_query_trigger);
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND_RELEVANTS"], $t_query_trigger);
+$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND_RELEVANTS"], $t_process->getQueryTrigger());
 
 /*if ($response["count"] > 0) {
     //do fn_skew_manexDb to find due and quantity base on ??
@@ -47,15 +47,15 @@ $response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND_RELEVANTS"],
 $result = [
 	"Mocha" 			=> $t_mocha_test,
 	"queryExeTime" 		=> $t_unix_today,
-	"queryTrigger" 		=> $t_query_trigger
+	"queryTrigger" 		=> $t_process->getQueryTrigger()
 	// "queryGpc_get"	=> gpc_get("query")
 	// "queryGpc_isset"	=> gpc_isset("query")
 ];
 $result = array_merge($result, $response);
 
-$args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_SO_WO"], $t_query_trigger];
+$args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_SO_WO"]];
 
-$t_process = new SkewChess();
+
 $response = $t_process->fn_skew_manexDb($args);
 if ($response)
 	$result["response"] = $response;
