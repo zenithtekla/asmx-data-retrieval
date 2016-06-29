@@ -45,46 +45,46 @@ $t_unix_today = strtotime(getDateTime());
 
 // load query strings
 $qrs = HelperUTILS::load_conf(__CFG_FILE__);
-$t_mocha_test = $qrs["MOCHA_TEST"] == true;
 
-$t_query_trigger = ($t_mocha_test) ? "asiakas1" : ($_POST["query_trigger"] || "");
-
-$t_query = HelperUTILS::input_string_escape($t_query_trigger);
+$t_mocha_test = $qrs['MOCHA']['TEST'] == true;
+$t_query_trigger = ($t_mocha_test) ? '00091519A' : $_GET['query_trigger'];
+$t_process = new SkewChess($t_query_trigger);
 // with . The following can be commented out.
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_CUSTOMER_FIND"], $t_query);
+$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_WO_FIND'], $qrs['MANTIS']['wo_so_table'], $t_query_trigger);
 
 $result = [
-	"Mocha" => $t_mocha_test,
-	"queryExeTime" => $t_unix_today,
-	"queryTrigger_1" => $t_query,
-	"RESPONSE_1" => $response
+	'Mocha' => $t_mocha_test,
+	'queryExeTime' => $t_unix_today,
+	'queryTrigger_1' => $t_query_trigger,
+	'RESPONSE_1' => $response
 ];
-// use json_encode($response["response"]); to prepare Typeahead selectives
+// use json_encode($response['response']); to prepare Typeahead selectives
 
-$t_process = new SkewChess($t_unix_today);
-$t_retrieval_data = ($qrs["MOCHA_TEST"]) ? "05/23/2016" : date("m/d/Y", $t_unix_today);
-$args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_ACCT_DATE"], $t_retrieval_data];
-
-$response = $t_process->fn_skew_manexDb($args); // once found 1 customer, skip further process.
-$result["RESPONSE_11"] = $response;
+$args = [$qrs['MANEX']['HTTP_REQ_SO_WO'], $response['count']];
+$response = $t_process->fn_skew_manexDb($args);
+$result['RESPONSE_11'] = $response;
 
 /* ---
 		END RESPONSE_1
 		BEGIN RESPONSE_2
    ---
 */
+$t_query_trigger = ($t_mocha_test) ? 'asiakas1' : $_GET['query_trigger'];
 
-$t_query_trigger = ($t_mocha_test) ? "00091519A" : ($_POST["query_trigger"] || "");
+$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_CUSTOMER_FIND'], $qrs['MANTIS']['customer_table'], $t_query_trigger);
 
-$t_query = HelperUTILS::input_string_escape($t_query_trigger);
-$response = HelperUTILS::mantis_db_query($qrs["MANTIS_QUERY_WO_FIND"], $t_query);
+$result['queryTrigger_2'] = $t_query_trigger;
+$result['RESPONSE_22'] = $response;
 
-$result["queryTrigger_2"] = $t_query;
-$result["RESPONSE_2"] = $response;
+$t_retrieval_data = ($qrs['MOCHA_TEST']) ? '05/23/2016' : (string)date('m/d/Y', $t_unix_today);
 
-$args = [$qrs, $response["count"], $qrs["MANEX_HTTP_REQ_SO_WO"], $_POST["query_trigger"]];
-$response = $t_process->fn_skew_manexDb($args);
-$result["RESPONSE_22"] = $response;
+$t_process_data = new SkewChess($t_retrieval_data);
+
+$args = [$qrs['MANEX']['HTTP_REQ_ACCT_DATE'], $response['count']];
+$response = $t_process_data->fn_skew_manexDb($args); // once found 1 customer, skip further process.
+$result['retrieval_data'] = $t_process_data->getQueryTrigger();
+$result['RESPONSE_23'] = $response;
+
 echo json_encode($result, JSON_PRETTY_PRINT);
 ?>
 </pre>
