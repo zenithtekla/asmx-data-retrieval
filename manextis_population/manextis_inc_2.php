@@ -71,17 +71,22 @@ var o = {
 
 $o_Mocha = new stdClass();
 $o_Mocha->timestamp = $t_unix_today;
-$o_Mocha->wo_so_table = $qrs['MANTIS']['wo_so_table'];
-$o_Mocha->assembly_table = $qrs['MANTIS']['assembly_table'];
-$o_Mocha->customer_table = $qrs['MANTIS']['customer_table'];
-$o_Mocha->insert_wo_so_table = $qrs['MANTIS']['QUERY_INSERT_WO_TABLE'];
-$o_Mocha->insert_assembly_table = $qrs['MANTIS']['QUERY_INSERT_ASSEMBLY_TABLE'];
-$o_Mocha->insert_customer_table = $qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'];
-$o_Mocha->lazy_update_wo_so_table = $qrs['MANTIS']['QUERY_LAZY_UPDATE_WO_TABLE'];
-$o_Mocha->lazy_update_assembly_table = $qrs['MANTIS']['QUERY_LAZY_UPDATE_ASSEMBLY_TABLE'];
-$o_Mocha->lazy_update_customer_table = $qrs['MANTIS']['QUERY_LAZY_UPDATE_CUSTOMER_TABLE'];
+$o_Mocha->wo_so_table 		= $qrs['MANTIS']['wo_so_table'];
+$o_Mocha->assembly_table 	= $qrs['MANTIS']['assembly_table'];
+$o_Mocha->customer_table 	= $qrs['MANTIS']['customer_table'];
+$o_Mocha->query_sync_table 	= $qrs['MANTIS']['query_sync_table'];
 
-$o_Mocha->update_wo_so_table = $qrs['MANTIS']['QUERY_UPDATE_WO_TABLE'];
+$o_Mocha->insert_wo_so_table 		= $qrs['MANTIS']['QUERY_INSERT_WO_TABLE'];
+$o_Mocha->insert_assembly_table 	= $qrs['MANTIS']['QUERY_INSERT_ASSEMBLY_TABLE'];
+$o_Mocha->insert_customer_table 	= $qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'];
+$o_Mocha->query_sync_table_insert 	= $qrs['MANTIS']['QUERY_SYNC_TABLE_INSERT'];
+$o_Mocha->query_sync_table_find 	= $qrs['MANTIS']['QUERY_SYNC_TABLE_FIND'];
+
+$o_Mocha->lazy_update_wo_so_table 		= $qrs['MANTIS']['QUERY_LAZY_UPDATE_WO_TABLE'];
+$o_Mocha->lazy_update_assembly_table 	= $qrs['MANTIS']['QUERY_LAZY_UPDATE_ASSEMBLY_TABLE'];
+$o_Mocha->lazy_update_customer_table 	= $qrs['MANTIS']['QUERY_LAZY_UPDATE_CUSTOMER_TABLE'];
+
+$o_Mocha->update_wo_so_table 	= $qrs['MANTIS']['QUERY_UPDATE_WO_TABLE'];
 $o_Mocha->update_assembly_table = $qrs['MANTIS']['QUERY_UPDATE_ASSEMBLY_TABLE'];
 $o_Mocha->update_customer_table = $qrs['MANTIS']['QUERY_UPDATE_CUSTOMER_TABLE'];
 
@@ -91,6 +96,7 @@ if ($t_mocha_test){
 	$o_Mocha->x_res_count = $qrs['MOCHA']['X_RESULT_COUNT'];
 	$o_Mocha->t_res_count = $qrs['MOCHA']['T_RESULT_COUNT'];
 	$o_Mocha->x_res_arr = HelperUTILS::input_string_valid($qrs['MOCHA']['X_RESULT_ARR']) ? json_decode($qrs['MOCHA']['X_RESULT_ARR'], true) : null;
+	$o_Mocha->x_simulate_res_arr = $qrs['MOCHA']['X_SIMULATE_RESULT_ARR'];
 	$o_Mocha->t_res_arr = HelperUTILS::input_string_valid($qrs['MOCHA']['T_RESULT_ARR'])? json_decode($qrs['MOCHA']['T_RESULT_ARR'], true) : null;
 
 	// $result['o_Mocha'] = $o_Mocha;
@@ -105,9 +111,14 @@ ___________________________________________
 * $result['queryGpc_get']   = gpc_get('query')
 * $result['queryGpc_isset']	= gpc_isset('query')
 *
+* creator = user typing the search key
+* the search key itself is considered as a query trigger
 */
 $t_query_trigger = ($t_mocha_test) ? '1880' : $_GET['query'];
-$t_process = new SkewChess($t_query_trigger);
+$t_creator_id 	= ($t_mocha_test) ? '6' : $_GET['creator_id'];
+
+// instantiation
+$t_process = new SkewChess($t_query_trigger, $t_creator_id);
 
 $result['queryTrigger'] = $t_process->getQueryTrigger();
 
@@ -115,7 +126,7 @@ $result['queryTrigger'] = $t_process->getQueryTrigger();
 *	Syncing requires X_query_str and T_query_str
 */
 
-$result['Syncing'] = $t_process->xt_sync_update($qrs['MANEX']['HTTP_REQ_SO_WO'],$qrs['MANTIS']['QUERY_WO_FIND_RELEVANTS'], $o_Mocha);
+$result['sync'] = $t_process->xt_sync_update($qrs['MANEX']['HTTP_REQ_SO_WO'],$qrs['MANTIS']['QUERY_WO_FIND_RELEVANTS'], $o_Mocha);
 
 ?>
 <pre>

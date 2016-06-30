@@ -35,7 +35,7 @@ $result = array_merge($result, ['res2' => $response]);
    ---
 */
 
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_SO_FIND'], 'mantis_plugin_serials_serial_table', $t_query_param1, $t_query_param2]);
+$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_SO_FIND'], 'mantis_plugin_serials_serial_table', $t_query_param1, $t_query_param2);
 $result = array_merge($result, ['res3' => $response]);
 /* ---
 		END Response_3

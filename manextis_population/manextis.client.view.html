@@ -15,6 +15,8 @@
 <body ng-app="myModule">
 <div class="wrapper container table-container" ng-controller="myController">
     <div class="so_wo">
+        <input id="field10" class="any_field" type="text" size="100" name="any_name" ng-model='field10_model' required/>
+        <input type="datetime-local" ng-model="entry.date_received" datetime="MM/dd/yyyy hh:mm a" date-parser="MM/dd/yyyy hh:mm a" class="screen"/>
         currentTime :  {{Time}}<br>
         formattedTime: {{formattedTime | dateFormat}}<br><br>
         <label> Mocha test<input type="checkbox" ng-model='mochaBox' ng-init="mochaBox=false"></label>
@@ -36,7 +38,7 @@
                 <tr>
                     <th>Index</th>
                     <th>Uniq_key</th>
-                    <th>Customer_Id</th>
+                    <th>Customer_PO</th>
                     <th>Customer_Name</th>
                     <th>Due</th>
                     <th>Work_Order</th>
@@ -51,7 +53,7 @@
                 <tr ng-repeat="order in orders">
                     <td>{{$index+1}}</td>
                     <td>{{order.key}}</td>
-                    <td>{{order.customer_id}}</td>
+                    <td>{{order.customer_po}}</td>
                     <td>{{order.customer_name}}</td>
                     <td>{{order.due_date}}</td>
                     <td>{{order.wo}}</td>

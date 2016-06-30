@@ -25,6 +25,13 @@ function myCtrlFn ($scope, $http, $location, $interval) {
         $scope.Time = Math.round(new Date().getTime()/1000.0);
         $scope.formattedTime = $scope.Time;
     }, 1000);
+
+    $scope.$watch('field10_model',function(newVal, oldVal){
+        console.log(newVal, oldVal);
+    });
+    $scope.$watch('entry.date_received02',function(newVal, oldVal){
+        console.log(newVal, oldVal);
+    });
     /* ---------------------------------------------------------
     Sample dataDump
     ----------------------------------------------------------*/
@@ -54,7 +61,7 @@ function myCtrlFn ($scope, $http, $location, $interval) {
                 assembly: d.ASSY_NO,
                 revision: d.REVISION,
                 qty: d.QTY,
-                customer_id: d.CUST_PO_NO,
+                customer_po: d.CUST_PO_NO,
                 customer_name: d.CUST_NAME,
                 timestamp: Math.floor(Date.now() / 1000)
             };

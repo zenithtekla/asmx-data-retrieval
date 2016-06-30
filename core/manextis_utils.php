@@ -128,7 +128,7 @@ class HelperUTILS{
 		return $config;
     }
 
-    // PUBLIC
+    // this method will perform update even if entry does not exist; use w/mantis_db_query to perform check on result count of a SELECT query if necessary, see '06 - query_text exists' of xt_sync_update() method for example
     public static function mantis_db_query_update(){
 	try {
 			$response = [];
@@ -144,9 +144,9 @@ class HelperUTILS{
 
 			foreach ($query as $qr) {
 				if (!is_array($qr))
-				db_query_bound( $qr );
+				$response['response']['bound'] = db_query_bound( $qr );
 			}
-			$response['response'] = 'Query update successfully executed.';
+			$response['response']['text'] = 'Query update successfully executed.';
 		}
 		catch (Exception $e){
 			$response['response'] = 'mantis_db_query ERROR: ' . $e->getMessage();
@@ -157,7 +157,24 @@ class HelperUTILS{
     }
 
     // REQUIRE strict; on params, so start off with query_build before calling this method.
-    public static function mantis_db_query_insert($query, $table){
+    public static function mantis_db_query_insert(){
+	try {
+		$response = [];
+		$args = func_get_args();
+		$response = self::mantis_db_query_build($args);
+		$query_string = $response['query_string'];
+		$response['response'] = self::mantis_db_invoke_insert($query_string, $response['table_of_insert']);
+	}
+		catch (Exception $e){
+			$response->response = 'mantis_db_insert ERROR: ' . $e->getMessage();
+		}
+    	finally {
+    		return $response;
+    	}
+    }
+
+    // REQUIRE strict; on params, so start off with query_build before calling this method.
+    public static function mantis_db_invoke_insert($query, $table){
 	try {
 		if (is_array($query)){
 			foreach ($query as $qr) {
@@ -170,7 +187,7 @@ class HelperUTILS{
 		}
 	}
 		catch (Exception $e){
-			$response->response = 'mantis_db_query ERROR: ' . $e->getMessage();
+			$response->response = 'mantis_db_invoke_insert ERROR: ' . $e->getMessage();
 		}
     	finally {
     		return $response;
@@ -211,7 +228,7 @@ class HelperUTILS{
     	}
 	}
 		catch (Exception $e){
-			$response['response'] = 'mantis_db_query ERROR: ' . $e->getMessage();
+			$response['response'] = 'mantis_db_query_select ERROR: ' . $e->getMessage();
 		}
     	// $response["response"] = mysql_query( $query );
     	finally {
@@ -279,6 +296,7 @@ class HelperUTILS{
 			}
 		}
 		catch (Exception $e){
+			$response->response = 'mantis_db_query_build ERROR: ' . $e->getMessage();
 		}
 		finally {
     		return $response;
@@ -303,7 +321,8 @@ class HelperUTILS{
     			$response['response'] = self::mantis_db_query_select($query_string );
     			break;
     		case ($query_word ==='INSERT'):
-    			$response['response'] = self::mantis_db_query_insert($query_string, $response['table_of_insert']);
+    			// invoke insertion
+    			$response['response'] = self::mantis_db_invoke_insert($query_string, $response['table_of_insert']);
     			break;
     		case ($query_word ==='UPDATE'):
     			$response['response'] = self::mantis_db_query_update($query_string);
@@ -334,14 +353,19 @@ class HelperUTILS{
 	}
 }
 /**
-* require class HelperUTILS
+* @require class HelperUTILS
 */
 class SkewChess{
-	function __construct($query_trigger = '') {
+	// initialization
+	function __construct($query_trigger, $t_creator_id = '') {
 		$this->query_trigger = HelperUTILS::query_trigger_handler($query_trigger);
+		$this->creator_id = HelperUTILS::input_string_escape($t_creator_id);
 	}
 	function getQueryTrigger(){
 		return $this->query_trigger;
+	}
+	function getCreatorId(){
+		return $this->creator_id;
 	}
 	function setQueryTrigger($val){
 		$this->query_trigger = HelperUTILS::query_trigger_handler($val);
@@ -385,6 +409,9 @@ class SkewChess{
 		return HelperUTILS::array_diff_pairs_xt($arr1, $arr2);
 	}
 
+	/**
+	* Build update query
+	*/
 	function update_a_record($p_update, $p_query, $p_table, $p_where){
 		$p_set_at = implode(', ', array_keys($p_update));
 		$p_query = str_replace('?', $p_set_at, $p_query);
@@ -394,6 +421,9 @@ class SkewChess{
 		return HelperUTILS::mantis_db_query_build($p_query, $params);
 	}
 
+	/**
+	* Build and Invoke Insertion of new data set
+	*/
 	function xt_sync_insert_all(
 		$p_insert_customer_table,
 		$p_insert_assembly_table,
@@ -409,7 +439,7 @@ class SkewChess{
 		];
 		$t_query_string = HelperUTILS::mantis_db_query_build($p_insert_customer_table, $params);
 		// return $t_qr;
-		$t_id = ($source['Mocha']) ? 29 : HelperUTILS::mantis_db_query_insert($t_query_string, $source['customer_table'])->id;
+		$t_id = ($source['Mocha']) ? 29 : HelperUTILS::mantis_db_invoke_insert($t_query_string, $source['customer_table'])->id;
 		$result[] = $t_query_string;
 
 		// perform next query
@@ -438,11 +468,11 @@ class SkewChess{
 		return $result;
 	}
 	/**
-	 * Returns an array list of query result
-	 * @param X_query_str
-	 * @param T_query_str
-	 * @return array
-	 */
+	* Returns an array list of query result
+	* @param X_query_str
+	* @param T_query_str
+	* @return array
+	*/
 	function xt_sync($X_query_str, $T_query_str){
 		$X_response = $this->manex_db_query($X_query_str);
 		$X_res_arr = json_decode($X_response, true);
@@ -463,6 +493,14 @@ class SkewChess{
 		return $result;
 	}
 
+	/**
+	* Returns an array list of query result
+	* @param X_query_str
+	* @param T_query_str
+	* @param o_Mocha carries over pre-defined settings
+	* @return array
+	*/
+
 	function xt_sync_update($X_query_str, $T_query_str, $o_Mocha = null){
 		try {
 			$X_response = $this->manex_db_query($X_query_str);
@@ -472,8 +510,9 @@ class SkewChess{
 				// override result count
 				$result['Xquery']['count'] = ($o_Mocha->testing && !empty($o_Mocha->x_res_count)) ? $o_Mocha->x_res_count : $X_res_count;
 
-				if ($result['Xquery']['count'] < 1) throw new Exception('02 - X_Query result has NO matching entry');
+				if ($result['Xquery']['count'] < 1) throw new Exception('02.1 - X_Query result has NO matching entry');
 				if ($result['Xquery']['count'] > 1) throw new Exception('03.1 - X_Query result contains more than one entry');
+
 				$result['Xquery']['response'] = $X_response;
 				$result['Xquery']['query_str'] = $X_query_str;
 
@@ -492,18 +531,37 @@ class SkewChess{
 				$T_response = HelperUTILS::mantis_db_query($T_query_str, $q_wo_so_table, $this->getQueryTrigger());
 				$result['Tquery'] = $T_response;
 
-				// override result count
+				/* ---
+				END T_response
+				DONE X & T retrieval
+				   ---
+				*/
+
+				//  .sync.response.response.
+				// fetch result to ensure front-end display; otherwise, fetch later and use front-end display as a method to verify the entire process.
+				$result['response']['response'] = $X_response;
+
+				/* --- OVERRIDE result count --- */
 				if ($o_Mocha->testing && !empty($o_Mocha->t_res_count))
 				$result['Tquery']['count'] = $o_Mocha->t_res_count;
 
+				/* --- CONDITION check --- */
 				if ($result['Tquery']['count'] > 1) throw new Exception('03.2 - T_Query result contains more than one entry');
-				// if ($result['Tquery']['count'] < 1) throw new Exception('04 - Ready to insert ALL mantis_db_query_insert()');
 
-
- 				//  Limitation: only grab first element of the result array. Override if testing is enabled.
+				/* --- OVERRIDE res_array
+						if testing is enabled--- */
+ 				//  Limitation: only grab first element of the result array.
 				$T_res_array = ($o_Mocha->testing && !empty($o_Mocha->t_res_arr)) ? $o_Mocha->t_res_arr[0] : $T_response['response'][0];
 				$X_res_array = ($o_Mocha->testing && !empty($o_Mocha->x_res_arr)) ? $o_Mocha->x_res_arr[0] : $X_res_arr[0];
 
+				/* --- CONDITION check --- */
+				if (empty($X_res_arr[0])) throw new Exception('02.2 - X_Query result has NO matching entry OR connection to Manex drops!');
+
+				/* ---
+				INSERT_ALL if NO query result from manTis
+				   ---
+				*/
+				// if ($result['Tquery']['count'] < 1) throw new Exception('04 - Ready to insert ALL mantis_db_invoke_insert()');
 				if ($result['Tquery']['count'] < 1){
 					$X_res_array['TIME_STAMP'] 		= $t_timestamp;
 					$X_res_array['Mocha'] 			= $o_Mocha->testing;
@@ -515,10 +573,19 @@ class SkewChess{
 					$q_insert_assembly_table 	= $o_Mocha->insert_assembly_table;
 					$q_insert_customer_table 	= $o_Mocha->insert_customer_table;
 					$result['pendingInsert'] = $this->xt_sync_insert_all($q_insert_customer_table, $q_insert_assembly_table, $q_insert_wo_so_table, $X_res_array);
-					return;
+					// return from this method after insert_all, the rest code should be ignored.
+					// invoke insertion
+					foreach ($result['pendingInsert'] as $query) {
+						$result['insertAll'][] = HelperUTILS::mantis_db_invoke_insert($query['query_string'], $query['table_of_insert']);
+					}
+					return $result;
 				}
 
-				# Ready to compare and update.
+				/* ---
+				SYNC.UPDATE ManTis.entry
+				   ---
+				*/
+
 				$result['XTcompare'] = $this->xt_compare($X_res_array, $T_res_array);
 
 				if (!is_array($result['XTcompare']['response'])) throw new Exception ('05 - XT_Compare failed, review query results or testing inputs');
@@ -527,27 +594,30 @@ class SkewChess{
 				$XT_diff = $result['XTcompare']['response']['diff'];
 				$XT_same = $result['XTcompare']['response']['same'];
 				$XT_null = $result['XTcompare']['response']['null'];
+				/* this is again where ugly PHP is madness where simply
+				o.xt_compare.res.diff is implemented in other language.
+				*/
 
 				// set 3 key values;
-				$t_uniq_key = $X_res_array['UNIQ_KEY']; // using UNIQ_KEY from Manex on Mantis too.
-				$t_customer_id = $T_res_array['CUST_ID'];
-				$t_wo = $X_res_array['WO_NO']; // = $this->getQueryTrigger() = $T_res_array['WO_NO']
+				$t_uniq_key 	= $X_res_array['UNIQ_KEY']; // using Manex.UNIQ_KEY  on Mantis too.
+				$t_customer_id 	= $T_res_array['CUST_ID'];
+				$t_wo 			= $X_res_array['WO_NO']; // = $this->getQueryTrigger() = $T_res_array['WO_NO']
 
-				// instead of going and updating everything using 3 queries QUERY_UPDATE_WO_TABLE, QUERY_UPDATE_ASSEMBLY_TABLE, and QUERY_UPDATE_CUSTOMER_TABLE which disregard performance and does all update anyway. That consideration leads to the following route of query string build.
+				// instead of going and updating everything using 3 queries QUERY_UPDATE_WO_TABLE, QUERY_UPDATE_ASSEMBLY_TABLE, and QUERY_UPDATE_CUSTOMER_TABLE which disregard performance and does all update anyway, the righteous approach should be to the following route of query string build.
 				$t_update_for = [];
 				foreach ($XT_all_diff as $key => $value) {
 					$t_key = $key;
 					switch (true) {
 						case preg_match("/SO_NO/", $key, $match):
-							$t_set_at = "sono='%s'";
+							$t_set_at = "sono='%d'";
 							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
 							break;
 						case preg_match("/QTY/", $key, $match):
-							$t_set_at = "quantity = '%d'";
+							$t_set_at = "quantity='%d'";
 							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
 							break;
 						case preg_match("/DUE_DATE/", $key, $match):
-							$t_set_at = "due = '%d'";
+							$t_set_at = "due='%d'";
 							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
 							break;
 						case preg_match("/ASSY_NO/", $key, $match):
@@ -555,7 +625,7 @@ class SkewChess{
 							$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
 							break;
 						case preg_match("/REVISION/", $key, $match):
-							$t_set_at = "revision = '%s'";
+							$t_set_at = "revision='%s'";
 							$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
 							break;
 						case preg_match("/CUST_NAME/", $key, $match):
@@ -563,7 +633,7 @@ class SkewChess{
 							$t_update_for[$q_customer_table][$t_set_at] = $value[0];
 							break;
 						case preg_match("/CUST_PO_NO/", $key, $match):
-							$t_set_at = "pono='%s'";
+							$t_set_at = "pono='%d'";
 							$t_update_for[$q_customer_table][$t_set_at] = $value[0];
 							break;
 						default:
@@ -572,7 +642,7 @@ class SkewChess{
 					}
 				}
 
-				$result['QueryPrep'] = $t_update_for;
+				$result['update_prep'] = $t_update_for;
 				// prepare update query
 
 				// status<0 deactive, status = 0 obselete, status>0 active, status= 1: , status=2: , status=3: recently updated.
@@ -581,57 +651,54 @@ class SkewChess{
 				/*if (empty($XT_diff) && empty($XT_null) && !empty($XT_same)) throw new Exception('06 - XT_Compare results in NO diff');
 				if (!empty($XT_null)) throw new Exception('07 - XT_Compare results in NULL fields in MantisDb. Update?');
 				if ( (!empty($XT_diff) && empty($XT_same) && empty($XT_null))
-				   || (!empty($XT_diff) && $T_res_array['WO_NO'] === $X_res_array['WO_NO'] && empty($XT_null))) throw new Exception('04 - Ready to insert ALL mantis_db_query_insert()');*/ // meaning the entire Mantis entry is different  very unlikely to happen
+				   || (!empty($XT_diff) && $T_res_array['WO_NO'] === $X_res_array['WO_NO'] && empty($XT_null))) throw new Exception('04 - Ready to insert ALL mantis_db_invoke_insert()');*/ // meaning the entire Mantis entry is different  very unlikely to happen
 
-				// Unfolding the defined mantis set of tables
 				if (empty($o_Mocha)) throw new Exception(' 13 - Mocha isn\'t passed into this method for configuring tables');
 
+				// Unfolding the defined mantis set of tables
  				$q_update_wo_so_table    	= $o_Mocha->update_wo_so_table;
 				$q_update_assembly_table 	= $o_Mocha->update_assembly_table;
 				$q_update_customer_table 	= $o_Mocha->update_customer_table;
+				$q_query_sync_table 		= $o_Mocha->query_sync_table;
 
-				$q_lazy_update_wo_so_table    	= $o_Mocha->lazy_update_wo_so_table;
-				$q_lazy_update_assembly_table 	= $o_Mocha->lazy_update_assembly_table;
-				$q_lazy_update_customer_table 	= $o_Mocha->lazy_update_customer_table;
+				$q_query_sync_table_find 	= $o_Mocha->query_sync_table_find;
+				$q_query_sync_table_insert 	= $o_Mocha->query_sync_table_insert;
 
-				/*$result['q'] = [
-					$q_wo_so_table,
-					$q_assembly_table,
-					$q_customer_table,
-					$q_insert_wo_so_table,
-					$q_insert_assembly_table,
-					$q_insert_customer_table,
-					$q_update_wo_so_table,
-					$q_update_assembly_table,
-					$q_update_customer_table,
-					$q_lazy_update_wo_so_table,
-					$q_lazy_update_assembly_table,
-					$q_lazy_update_customer_table
-				];*/
 
  				if (count($t_update_for[$q_wo_so_table])>0){
 					$t_qr[$q_wo_so_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_wo_so_table],$q_update_wo_so_table, $q_wo_so_table, $t_wo);
+					$t_query[$q_wo_so_table] = $t_qr[$q_wo_so_table][$t_timestamp]['query_string'][0];
 				}
 				if (count($t_update_for[$q_assembly_table])>0){
 					$t_qr[$q_assembly_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_assembly_table],$q_update_assembly_table, $q_assembly_table, $t_uniq_key);
+					$t_query[$q_assembly_table] = $t_qr[$q_assembly_table][$t_timestamp]['query_string'][0];
 				}
 				if (count($t_update_for[$q_customer_table])>0){
 					$t_qr[$q_customer_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_customer_table],$q_update_customer_table, $q_customer_table, $t_customer_id);
+					$t_query[$q_customer_table] = $t_qr[$q_customer_table][$t_timestamp]['query_string'][0];
 				}
 
-				$result['pendingQuery'] = $t_qr;
-				/*if (count($t_update_for[$q_customer_table])>0){
-					$t_update_query[] = 'query';
-					$result['pendingQuery'][$q_customer_table][$t_timestamp] = $t_update_query;
-				}*/
+				$result['pending_stock'] = $t_qr;
+				$t_query_text = HelperUTILS::input_string_escape(implode('; ', $t_query));
+				$result['update_stock'] = $t_query;
+				$t_remark = 'query.wo = ' . $this->getQueryTrigger() . '\t\t' . 'query.customer_name = ' .$X_res_array['CUST_NAME'] . '\t\t'. 'query.creator_id = '. $this->getCreatorId();
+
+				$response = HelperUTILS::mantis_db_query($q_query_sync_table_find, $q_query_sync_table, $t_query_text);
+				if ($response['response']['count']>0) {
+					$result['response']['stock'] = $response['response'];
+					throw new Exception('06 - query_text exists');
+				}
+
+				$result['stock'] = HelperUTILS::mantis_db_query_insert($q_query_sync_table_insert, $q_query_sync_table, $t_query_text, $t_remark, $this->getCreatorId(), $t_timestamp, 0, 0, 0);
 
 			} else throw new Exception('01 - invalid response from Manex');
 
 		} catch (Exception $e) {
-			$result['response'] = 'ERROR ' . $e->getMessage(). ' , Reporter: xt_sync_update';
+			$result['response']['error'] = 'ERROR ' . $e->getMessage(). ' , Reporter: xt_sync_update';
 		}
 		finally	{
 			return $result;
+			// .sync.response = { response :'json', error: 'string if there is error', stock: 'obj'}
 		}
 	}
 }

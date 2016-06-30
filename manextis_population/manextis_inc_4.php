@@ -23,7 +23,7 @@
 
 	$t_query_trigger = HelperUTILS::query_trigger_handler($t_query_trigger);
 
-	$t_query_params = [$qrs['MANTIS']['wo_so_table'], '0000037777', 20, 1461875226, $t_query_trigger];
+	$t_query_params = [$qrs['MANTIS']['wo_so_table'], 37777, 20, 1461875226, $t_query_trigger];
 
 	$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_LAZY_UPDATE_WO_TABLE'], $t_query_params);
 	$result = array_merge($result, ['res1' => $response]);
@@ -33,7 +33,7 @@
 			BEGIN RESPONSE_2 - feeding parameters themselves directly
 	   ---
 	*/
-	$response = HelperUTILS::mantis_db_query_update($qrs['MANTIS']['QUERY_LAZY_UPDATE_WO_TABLE'], [$qrs['MANTIS']['wo_so_table'], '0000037777', 20, 1461875226, $t_query_trigger]);
+	$response = HelperUTILS::mantis_db_query_update($qrs['MANTIS']['QUERY_LAZY_UPDATE_WO_TABLE'], [$qrs['MANTIS']['wo_so_table'], 37777, 20, 1461875226, $t_query_trigger]);
 	$result = array_merge($result, ['res2' => $response]);
 	echo json_encode($result, JSON_PRETTY_PRINT);
 ?>

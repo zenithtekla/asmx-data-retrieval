@@ -53,7 +53,7 @@ function resultFetch($location, $http){
 			                    assembly: d.ASSY_NO || '',
 			                    revision: d.REVISION || '',
 			                    qty: d.QTY || '',
-			                    customer_id: d.CUST_PO_NO || '',
+			                    customer_po: d.CUST_PO_NO || '',
 			                    customer_name: d.CUST_NAME || '',
 			                    timestamp: Math.floor(Date.now() / 1000)
 			                };
