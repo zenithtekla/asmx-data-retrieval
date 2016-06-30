@@ -29,8 +29,8 @@ function myCtrlFn ($scope, $http, $location, $interval) {
     $scope.$watch('field10_model',function(newVal, oldVal){
         console.log(newVal, oldVal);
     });
-    $scope.$watch('entry.date_received02',function(newVal, oldVal){
-        console.log(newVal, oldVal);
+    $scope.$watch('entry.date_received',function(newVal){
+        console.log(newVal);
     });
     /* ---------------------------------------------------------
     Sample dataDump

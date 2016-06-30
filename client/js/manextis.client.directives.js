@@ -37,11 +37,14 @@ function resultFetch($location, $http){
 			            res.data = res.data.replace(/(<pre>|<\/pre>)/g, '').trim();
 			            res.data = JSON.parse(res.data);
 		            }
-		            console.log(res.data);
-		            var jobj = (typeof res.data.response ==='string') ? JSON.parse(res.data.response) : res.data.response;
+		            // console.log(res.data);
+	            	var response = res.data.sync.response || null;
+	            	console.log(response);
+		            var jobj = (typeof response.response ==='string') ? JSON.parse(response.response) : response.response;
 		            try {
 		            	if (!jobj) throw new Error("Undefined object, response: ");
-		            	$scope.no_result = (Object.keys(jobj).length === 0 || jobj == null) ? true : false;
+		            	$scope.no_result = Object.keys(jobj).length === 0 || jobj == null;
+
 
 		            	if ($scope.no_result) throw new Error("Unable to map the result object, response: ");
 			            jobj.map(function(d,idx){
@@ -64,6 +67,9 @@ function resultFetch($location, $http){
 		            }
 		            finally {
 		            	$scope.manextis = o;
+		            	$scope.error = response.error || null;
+		            	$scope.stock = response.stock || null;
+		            	$scope.no_query = (!$scope.stock);
 		            }
 		        });
     		});

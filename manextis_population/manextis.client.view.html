@@ -16,7 +16,7 @@
 <div class="wrapper container table-container" ng-controller="myController">
     <div class="so_wo">
         <input id="field10" class="any_field" type="text" size="100" name="any_name" ng-model='field10_model' required/>
-        <input type="datetime-local" ng-model="entry.date_received" datetime="MM/dd/yyyy hh:mm a" date-parser="MM/dd/yyyy hh:mm a" class="screen"/>
+        <input type="datetime-local" ng-model="entry.date_received" datetime="MM/dd/yyyy hh:mm a" date-parser="MM/dd/yyyy hh:mm a" class="screen"/><br>
         currentTime :  {{Time}}<br>
         formattedTime: {{formattedTime | dateFormat}}<br><br>
         <label> Mocha test<input type="checkbox" ng-model='mochaBox' ng-init="mochaBox=false"></label>
