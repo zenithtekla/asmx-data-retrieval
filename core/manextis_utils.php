@@ -137,17 +137,18 @@ class HelperUTILS{
 			$args = func_get_args();
 			$response['args'] = $args;
 			if (count($args) === 1){
-				if ( is_string($args[0])) $query = $args;
-				if ( is_array($args[0]) ) $query = $args[0];
+				$query = ( is_array($args[0]) ) ? $args[0] : $args;
 			} else {
 				$response['update_query'] = self::mantis_db_query_build($args);
 				$query = [$response['update_query']['query_string']];
 			}
-
+			$response['xxx'] = gettype($query[0]);
 			foreach ($query as $qr) {
-				if (!is_array($qr))
+				if (is_string($qr))
 					db_query_bound( $qr );
+				else db_query_bound( $qr[0] );
 			}
+			// db_query_bound( $query[0] );
 			$response['response']['text'] = 'Query update successfully executed.';
 		}
 		catch (Exception $e){
@@ -201,15 +202,12 @@ class HelperUTILS{
 		$args = func_get_args();
 		// $response['args'] = $args;
 		$result_buffer_check = false;
-
 		if (count($args) === 1){
-			if ( is_string($args[0])) $query = $args;
-			if ( is_array($args[0]) ) $query = $args[0];
+			$query = ( is_array($args[0]) ) ? $args[0] : $args;
 		} else {
 			$response['select_query'] = self::mantis_db_query_build($args);
 			$query = $response['select_query']['query_string'];
 		}
-		$response['query_string'] = $query;
 
 		foreach ($query as $qr) {
 			if (!is_array($qr)){
@@ -605,10 +603,11 @@ class SkewChess{
 
 					$result['customer_lookup'] = $t_customer_lookup;
 					$t_lookup_result = $t_customer_lookup['response']['response'][0];
+					if (!$t_lookup_result) throw new Exception('04.3 - unable to retrieve customer.info, ' . json_encode($t_customer_lookup));
 
 					$source['customer_id'] 	= $t_lookup_result['CUST_ID'];
 					$t_customer_po 			= $t_lookup_result['CUST_PO_NO'];
-					$T_time_stamp 			= $t_lookup_result['CUST_PO_NO'];
+					$T_time_stamp 			= $t_lookup_result['TIME_STAMP'];
 
 					// perform update for PO_NO
 					if ($t_customer_po != $source['CUST_PO_NO'] || empty($T_time_stamp)){
@@ -638,7 +637,7 @@ class SkewChess{
 
 						$source['insert_assembly_table'] 	= $o_Mocha->insert_assembly_table;
 
-						if ($t_assembly_count >= 1) throw new Exception('04.2 - assembly already exists - retracting');
+						if ($t_assembly_count >= 1) throw new Exception('04.3 - assembly already exists - retracting');
 
 						$source['insert_wo_so_table'] 		= $o_Mocha->insert_wo_so_table;
 
@@ -648,13 +647,15 @@ class SkewChess{
 					} else {
 						// throw new Exception('04.1 - maneX.customer_name doesn\'t exist in manTis => nothing exists!');
 						// insertion of all for initial load of new customer account from maneX
-						$q_insert_wo_so_table    	= $o_Mocha->insert_wo_so_table;
-						$q_insert_assembly_table 	= $o_Mocha->insert_assembly_table;
-						$q_insert_customer_table 	= $o_Mocha->insert_customer_table;
+						$source['insert_wo_so_table']    	= $o_Mocha->insert_wo_so_table;
+						$source['insert_assembly_table'] 	= $o_Mocha->insert_assembly_table;
+						$source['insert_customer_table'] 	= $o_Mocha->insert_customer_table;
 
 						// 3 src.tables ready to perform query build
 
 					}
+
+					$result['src'] = $source;
 
 					$result['pendingInsert'] 	= $this->xt_sync_insert($source);
 					// invoke insertion
