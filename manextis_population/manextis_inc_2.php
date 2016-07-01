@@ -122,7 +122,7 @@ ___________________________________________
 * the search key itself is considered as a query trigger
 */
 $t_query_trigger = ($t_mocha_test) ? '197390A1' : $_GET['query'];
-$t_creator_id 	= ($t_mocha_test) ? '6' : $_GET['creator_id'];
+$t_creator_id 	= ($t_mocha_test) ? $conf['MOCHA']['CREATOR_ID'] : $_GET['creator_id'];
 
 // instantiation
 $t_process = new SkewChess($t_query_trigger, $t_creator_id);

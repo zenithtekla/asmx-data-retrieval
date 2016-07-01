@@ -7,7 +7,9 @@
 	/**
 	* DbSkewer CoreAPI
 */
-
+/*
+* The helperUTILS class is highly reusable and can be extended for inheritance and instantiation use.
+*/
 class HelperUTILS{
 	const CFG_FILE = 'cfg/manextis_conf.ini';
 	protected static $id;
@@ -63,7 +65,7 @@ class HelperUTILS{
 				$result['arr1'][$key] = $arr1_val;
 				$result['arr2'][$key] = $arr2_val;
 				// verify both value and value type
-				if ($arr2_val !== $arr1_val){
+				if ($arr2_val != $arr1_val){
 					$result['response']['all_diff'][$key] = [ $arr1[$key], $arr2[$key] ];
 					if($arr2_val == null)
 						$result['response']['null'][$key] = [ $arr1[$key], $arr2[$key] ];
@@ -354,6 +356,8 @@ class HelperUTILS{
 }
 /**
 * @require class HelperUTILS
+* class SkewChess handles maneX and manTis db requests.
+* The process is tied up with query_trigger and creator_id
 */
 class SkewChess{
 	// initialization
@@ -602,9 +606,9 @@ class SkewChess{
 					$result['customer_lookup'] = $t_customer_lookup;
 					$t_lookup_result = $t_customer_lookup['response']['response'][0];
 
-					$source['customer_id'] = $t_lookup_result['CUST_ID'];
-					$t_customer_po 	= $t_lookup_result['CUST_PO_NO'];
-					$T_time_stamp 	= $t_lookup_result['CUST_PO_NO'];
+					$source['customer_id'] 	= $t_lookup_result['CUST_ID'];
+					$t_customer_po 			= $t_lookup_result['CUST_PO_NO'];
+					$T_time_stamp 			= $t_lookup_result['CUST_PO_NO'];
 
 					// perform update for PO_NO
 					if ($t_customer_po != $source['CUST_PO_NO'] || empty($T_time_stamp)){
@@ -659,7 +663,7 @@ class SkewChess{
 					}
 
 					$T_response = HelperUTILS::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
-					$result['inserted'] = $T_response['response']['response'][0];
+					$result['fullhouse'] = $T_response['response']['response'][0];
 					return $result;
 				}
 
@@ -730,6 +734,7 @@ class SkewChess{
 				// instead of going and updating everything using 3 queries QUERY_UPDATE_WO_TABLE, QUERY_UPDATE_ASSEMBLY_TABLE, and QUERY_UPDATE_CUSTOMER_TABLE which disregard performance and does all update anyway, the righteous approach should be to the following route of query string build.
 				$t_update_for = [];
 				$t_insert_for = [];
+				if ($XT_all_diff && is_array($XT_all_diff))
 				foreach ($XT_all_diff as $key => $value) {
 					$t_key = $key;
 					switch (true) {
@@ -802,6 +807,48 @@ class SkewChess{
 				}
 				// pending_stock is how MongoDb (document database style would look like: pending_stock\table\time_stamp\query_text
 				$result['pending_stock'] = $t_qr;
+
+				/* Verdict from a master CS major & fix: PHP does yield results on its (back-end) view,
+				* but there come minor errors (shown in back-end view)
+				*; resulting in no json_response fetched and no display on the front.
+				* Source of this problem is that PHP is NOT a loose-type language as Javascript, so PHP caught on issues of variable types: unset, null, undefine.. with unfovorable errors
+				* Not only definition like this cannot be made with PHP syntax
+				* $o ={
+						x:'x_value',
+						y: 2,
+						z: function(){}
+					};
+
+					BUT also it is difficult to implement MVC patterns and Modular programming technique (or likely similar technique) in PHP without large amount of efforts, the Laravel, Symphony, CodeIgniter..
+					Those implementation simplifies the development by allowing
+					CodeFactory and Refactory, Modules load
+					with
+						require("fs");
+
+						app.use('/profile', profile);
+
+						module.exports = $o;
+						// OR
+						module.exports = {
+								m:'m_value',
+								n: 365,
+								p: function(){}
+						};
+
+					resolving
+					Namespace issues (Namespace.Namespace.Namespace, functional Namespaces, ...),
+					baseUrl handling (accessing to baseUrl, accessing to routes, abstracting the Url routes, and prevent direct access),
+					more organization of project-folder structure (accessing to routes is handled so there is minimal need of using ../../../myfile.ini or require('./a/long/path/to/myModule'); ),
+					problem of nested scopes (handling of rootScope and context(ual) scope,
+					problem of functional programming (when callbacks happen to be looped|nested everywhere).
+				*/
+				// this line below is to fix that minor issue, handling when all matches, NO diff from X&T.
+				if(!$t_query || count($t_query)<1) {
+					$T_response = HelperUTILS::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
+					$result['fullhouse'] = $T_response['response']['response'][0];
+					throw new Exception('06.1 - identical set of data from two sources/databases');
+				}
+
 				$t_query_text = HelperUTILS::input_string_escape(implode('; ', $t_query));
 				$result['update_stock'] = $t_query;
 				$t_remark = 'query.wo = ' . $t_query_trigger . '\t\t' . 'query.customer_name = ' .$X_res_array['CUST_NAME'] . '\t\t'. 'query.creator_id = '. $this->getCreatorId();
@@ -809,10 +856,11 @@ class SkewChess{
 				$response = HelperUTILS::mantis_db_query($q_query_sync_table_find, $q_query_sync_table, $t_query_text);
 				if ($response['response']['count']>0) {
 					$result['response']['stock'] = $t_query_text;
-					throw new Exception('06 - query_text exists');
+					throw new Exception('06.2 - query_text exists');
 				}
 
 				HelperUTILS::mantis_db_query_insert($q_query_sync_table_insert, $q_query_sync_table, $t_query_text, $t_remark, $this->getCreatorId(), $t_timestamp, 0, 0, 0);
+
 				$result['response']['stock'] = $t_query_text;
 
 			} else throw new Exception('01 - invalid response from Manex');

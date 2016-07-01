@@ -12,8 +12,11 @@ function resultFetch($location, $http){
 		        $scope.currSearch = $location.search();
 		        var data = $scope.currSearch;
 		        angular.extend(data, { Mocha: $scope.mochaBox});
-		        /*var data = {
-		            query: newVal
+		        /*
+		        // creator_id to be wired up.
+		        var data = {
+		            query: newVal,
+		            creator_id: null
 		        };
 		        var config = {
 		            params: { query : newVal},
@@ -40,7 +43,7 @@ function resultFetch($location, $http){
 		            }
 		            console.log(res.data);
 	            	var response = res.data.sync.response || null;
-	            	var inserted = res.data.sync.inserted || null;
+	            	var fullhouse = res.data.sync.fullhouse || null;
 
 	            	console.log("Main findings: ");
 	            	console.log(response);
@@ -66,10 +69,10 @@ function resultFetch($location, $http){
 			                };
 			            });
 
-			            if (inserted){
-			            	console.log(inserted);
-			            	if(!(inserted instanceof Array)) inserted = [inserted];
-			            inserted.map(function(d,idx){
+			            if (fullhouse){
+			            	console.log(fullhouse);
+			            	if(!(fullhouse instanceof Array)) fullhouse = [fullhouse];
+			            fullhouse.map(function(d,idx){
 			                ob[idx] = {
 			                    key: d.UNIQ_KEY || '',
 			                    wo: d.WO_NO || '',
