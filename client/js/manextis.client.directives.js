@@ -33,12 +33,16 @@ function resultFetch($location, $http){
 		                test: res.data.Mocha
 		            };
 		            var o = {};
+		            var ob = {};
 		            if (typeof res.data ==='string'){
 			            res.data = res.data.replace(/(<pre>|<\/pre>)/g, '').trim();
 			            res.data = JSON.parse(res.data);
 		            }
-		            // console.log(res.data);
+		            console.log(res.data);
 	            	var response = res.data.sync.response || null;
+	            	var inserted = res.data.sync.inserted || null;
+
+	            	console.log("Main findings: ");
 	            	console.log(response);
 		            var jobj = (typeof response.response ==='string') ? JSON.parse(response.response) : response.response;
 		            try {
@@ -61,15 +65,37 @@ function resultFetch($location, $http){
 			                    timestamp: Math.floor(Date.now() / 1000)
 			                };
 			            });
+
+			            if (inserted){
+			            	console.log(inserted);
+			            	if(!(inserted instanceof Array)) inserted = [inserted];
+			            inserted.map(function(d,idx){
+			                ob[idx] = {
+			                    key: d.UNIQ_KEY || '',
+			                    wo: d.WO_NO || '',
+			                    so: d.SO_NO || '',
+			                    due_date: d.DUE_DATE || '',
+			                    assembly: d.ASSY_NO || '',
+			                    revision: d.REVISION || '',
+			                    qty: d.QTY || '',
+			                    customer_po: d.CUST_PO_NO || '',
+			                    customer_name: d.CUST_NAME || '',
+			                    timestamp: Math.floor(Date.now() / 1000)
+			                };
+			                console.log(ob);
+			            });
+			        	}
 		            }
 		            catch(e) {
-		            	console.error(e.message, res.data.response);
+		            	console.error(e.message, res.data);
 		            }
 		            finally {
-		            	$scope.manextis = o;
+		            	$scope.xset = o;
+		            	$scope.tset = ob || null;
 		            	$scope.error = response.error || null;
 		            	$scope.stock = response.stock || null;
 		            	$scope.no_query = (!$scope.stock);
+		            	$scope.no_insertion = (!$scope.tset);
 		            }
 		        });
     		});
