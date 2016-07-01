@@ -433,7 +433,7 @@ class SkewChess{
 				$source['customer_table'],
 				$source['CUST_NAME'],
 				$source['CUST_PO_NO'],
-				$t_status,
+				$source['STATUS'],
 				$source['ACCT_DATE'],
 				$source['TIME_STAMP']
 			];
@@ -512,7 +512,10 @@ class SkewChess{
 			if ($X_response){
 				$X_res_arr = json_decode($X_response, true);
 
-				// override result count
+				// override result count.
+				/* o_Mocha required for your coffee. Feel the Mocha. mochajs.org
+				* UnitTest, IDE environment, IDE utilities (Compiler, Debugger, Lint...), Shell scripting (npm, pip, gem, bower, chmod, md) is hardly performed in PHP if PHP development rocks on the sand of Windows and TextEditor
+				*/
 				if (empty($o_Mocha)) throw new Exception(' 13 - Mocha isn\'t defined.');
 				$result['Xquery']['count'] = ($o_Mocha->testing && !empty($o_Mocha->x_res_count)) ? $o_Mocha->x_res_count : count($X_res_arr);
 
@@ -575,7 +578,7 @@ class SkewChess{
 				$t_customer_id 	= $T_res_array['CUST_ID'];
 
 				// acct_date set to 1 (1970) as for now
-				$t_acct_date = 1;
+				$t_acct_date = $o_Mocha->default_status || 1;
 
 				// if ($result['Tquery']['response']['count'] < 1) throw new Exception('04 - Ready to insertion mantis_db_invoke_insert()');
 				if ($result['Tquery']['response']['count'] < 1 ){
@@ -583,6 +586,7 @@ class SkewChess{
 					$source = $X_res_array;
 					$source['customer_id'] 		= $t_customer_id;
 					$source['TIME_STAMP'] 		= $t_timestamp;
+					$source['STATUS'] 			= $o_Mocha->default_status;
 					$source['Mocha'] 			= $o_Mocha->testing;
 					$source['wo_so_table'] 		= $q_wo_so_table;
 					$source['assembly_table'] 	= $q_assembly_table;
@@ -635,7 +639,6 @@ class SkewChess{
 						$source['insert_wo_so_table'] 		= $o_Mocha->insert_wo_so_table;
 
 						// 2 src.tables ready to perform query build
-						$result['pendingInsert'] 	= $this->xt_sync_insert($source);
 
 						// return $result;
 					} else {
@@ -646,9 +649,10 @@ class SkewChess{
 						$q_insert_customer_table 	= $o_Mocha->insert_customer_table;
 
 						// 3 src.tables ready to perform query build
-						$result['pendingInsert'] 	= $this->xt_sync_insert($source);
+
 					}
 
+					$result['pendingInsert'] 	= $this->xt_sync_insert($source);
 					// invoke insertion
 					foreach ($result['pendingInsert'] as $query) {
 						$result['insertion'][] = HelperUTILS::mantis_db_invoke_insert($query['query_string'], $query['table_of_insert']);
