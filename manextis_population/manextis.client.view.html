@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title></title>
-    <script src="client/js/jquery.js"></script>
-    <script src="client/js/angular.js"></script>
-    <script src="client/js/moment.min.js"></script>
-    <script src="client/js/angular-momentjs.min.js"></script>
-    <script src="client/js/manextis.client.filters.js"></script>
-    <script src="client/js/manextis.client.directives.js"></script>
-    <script src="client/js/manextis.client.controller.js"></script>
+    <title>GUI</title>
     <link href="client/css/bootstrap.css" rel="stylesheet" />
     <link href="client/css/manextis.client.style.css" rel="stylesheet" />
 </head>
@@ -24,6 +17,8 @@
         <span ng-show="query">Search for "{{query}}"</span>
         <span ng-show="!query">Search...</span>
 
+        <br><br>
+        <button ng-click="truncate()">db.truncate() {{truncated}}</button>
         <br><br>
         dirURL : {{dirURL}} <br><br>
         Search : {{currSearch}} <br><br>
@@ -112,5 +107,12 @@
         </table>
     </div>
 </div>
+<script src="client/js/jquery.js"></script>
+<script src="client/js/angular.js"></script>
+<script src="client/js/moment.min.js"></script>
+<script src="client/js/angular-momentjs.min.js"></script>
+<script src="client/js/manextis.client.filters.js"></script>
+<script src="client/js/manextis.client.directives.js"></script>
+<script src="client/js/manextis.client.controller.js"></script>
 </body>
 </html>

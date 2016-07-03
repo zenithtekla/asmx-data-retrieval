@@ -1,6 +1,22 @@
 'use strict';
 var URL_JSON_MANTIS_MANEX = "manextis_inc_2.php";
 
+/*// Add to RegExp prototype http://aramk.com/blog/2012/01/16/preg_match_all-for-javascript/
+RegExp.prototype.execAll = function(string) {
+	var matches = [];
+	var match = null;
+	while ( (match = this.exec(string)) != null ) {
+		var matchArray = [];
+		for (var i in match) {
+			if (parseInt(i) == i) {
+				matchArray.push(match[i]);
+			}
+		}
+		matches.push(matchArray);
+	}
+	return matches;
+}*/
+
 angular.module("manextis.directive",[])
 .directive("resultFetch", ["$location", "$http", resultFetch ]);
 
@@ -35,15 +51,29 @@ function resultFetch($location, $http){
 		            $scope.Mocha = {
 		                test: res.data.Mocha
 		            };
+		            // console.log(res.data);
 		            var o = {};
 		            var ob = {};
+		            var oc = {};
 		            if (typeof res.data ==='string'){
-			            res.data = res.data.replace(/(<pre>|<\/pre>)/g, '').trim();
+			            // res.data = res.data.replace(/(<pre>|<\/pre>)/g, '').trim();
+			            /*// Ratkaisu 01
+			            var matches = [];
+			            res.data.replace(/<pre>([\s\S]+?)<\/pre>/g, function(){
+			            	//arguments[0] is the entire match
+			            	matches.push(arguments[1]);
+			            });
+			            res.data = matches[0];*/
+
+			            var re = /<pre\s*[^>]*>([\S\s]*?)<\/pre>/i;
+						var match = re.exec(res.data);
+						res.data = match[1];
 			            res.data = JSON.parse(res.data);
 		            }
 		            console.log(res.data);
 	            	var response = res.data.sync.response || null;
 	            	var fullhouse = res.data.sync.fullhouse || null;
+	            	var shell = res.data.sync.shell || null;
 
 	            	console.log("Main findings: ");
 	            	console.log(response);
@@ -70,23 +100,35 @@ function resultFetch($location, $http){
 			            });
 
 			            if (fullhouse){
-			            	console.log(fullhouse);
+			            	// console.log(fullhouse);
 			            	if(!(fullhouse instanceof Array)) fullhouse = [fullhouse];
-			            fullhouse.map(function(d,idx){
-			                ob[idx] = {
-			                    key: d.UNIQ_KEY || '',
-			                    wo: d.WO_NO || '',
-			                    so: d.SO_NO || '',
-			                    due_date: d.DUE_DATE || '',
-			                    assembly: d.ASSY_NO || '',
-			                    revision: d.REVISION || '',
-			                    qty: d.QTY || '',
-			                    customer_po: d.CUST_PO_NO || '',
-			                    customer_name: d.CUST_NAME || '',
-			                    timestamp: Math.floor(Date.now() / 1000)
-			                };
-			                console.log(ob);
-			            });
+				            fullhouse.map(function(d,idx){
+				                ob[idx] = {
+				                    key: d.UNIQ_KEY || '',
+				                    wo: d.WO_NO || '',
+				                    so: d.SO_NO || '',
+				                    due_date: d.DUE_DATE || '',
+				                    assembly: d.ASSY_NO || '',
+				                    revision: d.REVISION || '',
+				                    qty: d.QTY || '',
+				                    customer_po: d.CUST_PO_NO || '',
+				                    customer_name: d.CUST_NAME || '',
+				                    timestamp: Math.floor(Date.now() / 1000)
+				                };
+				                // console.log('client.Fullhouse ', ob);
+				            });
+			        	}
+
+			        	if (shell){
+			            	// console.log(shell);
+			            	if(!(shell instanceof Array)) shell = [shell];
+				            shell.map(function(d,idx){
+				                oc[idx] = {
+				                    bash: d.bash || '',
+				                    timestamp: Math.floor(Date.now() / 1000)
+				                };
+				                // console.log('client.Shell ', oc);
+				            });
 			        	}
 		            }
 		            catch(e) {
@@ -95,6 +137,7 @@ function resultFetch($location, $http){
 		            finally {
 		            	$scope.xset = o;
 		            	$scope.tset = ob || null;
+		            	$scope.shlog = oc || null;
 		            	$scope.error = response.error || null;
 		            	$scope.stock = response.stock || null;
 		            	$scope.no_query = (!$scope.stock);

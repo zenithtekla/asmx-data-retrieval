@@ -2,6 +2,7 @@
 	define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
 	define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
 	require_once __ROOT__.'core\manextis_utils.php';
+	require_once __ROOT__.'core\xt_util.php';
 	require_once __ROOT__.'core.php';
 	/* ------------------------------------- */
 ?>

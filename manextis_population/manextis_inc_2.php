@@ -29,9 +29,11 @@ B/ Enforce update to match all data including wono, no more variation and differ
 header('Content-Type: application/json');
 define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
 define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
-require_once __ROOT__.'core\manextis_utils.php';
-require_once __ROOT__.'core\date_time.php';
 require_once __ROOT__.'core.php';
+require_once __ROOT__.'core\date_time.php';
+require_once __ROOT__.'core\xt_util.php';
+require_once __ROOT__.'core\manextis_utils.php';
+
 // require_once __ROOT__.'core\gpc_api.php';
 
 // load datetime
@@ -79,7 +81,9 @@ $o_Mocha->query_sync_table 	= $conf['MANTIS']['query_sync_table'];
 
 
 $o_Mocha->customer_find 		= $conf['MANTIS']['QUERY_CUSTOMER_FIND'];
+$o_Mocha->uniq_key_find		= $conf['MANTIS']['QUERY_UNIQ_KEY_FIND'];
 $o_Mocha->assembly_find 		= $conf['MANTIS']['QUERY_ASSEMBLY_FIND'];
+$o_Mocha->assy_find 		= $conf['MANTIS']['QUERY_ASSY_FIND'];
 
 
 $o_Mocha->insert_wo_so_table 		= $conf['MANTIS']['QUERY_INSERT_WO_TABLE'];
@@ -120,6 +124,7 @@ ___________________________________________
 *
 * creator = user typing the search key
 * the search key itself is considered as a query trigger
+* 00091519A, 197390A1
 */
 $t_query_trigger = ($t_mocha_test) ? '197390A1' : $_GET['query'];
 $t_creator_id 	= ($t_mocha_test) ? $conf['MOCHA']['CREATOR_ID'] : $_GET['creator_id'];

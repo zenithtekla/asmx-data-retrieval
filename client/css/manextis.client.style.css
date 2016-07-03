@@ -7,3 +7,8 @@
 	font-size:4em;
 	width:9em;
 }
+.word-wrapper {
+  width: 8em;
+  word-break: break-all;
+  white-space: normal;
+}

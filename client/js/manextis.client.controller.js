@@ -3,13 +3,14 @@
 var URL_ACQUIRE_DATE = 'model/manextis_test_acquire_date.php';
 var URL_SO_WO = 'model/manextis_test_so_wo.php';
 var URL_JSON_SAMPLE = 'sample_data/manextis_sample_json.json';
+var URL_TRUNCATE = 'truncate.php';
 
 // [1,2,3].map(n => console.log(n + 1));
 var app = angular
     .module('myModule', ['manextis.filter', 'manextis.directive', 'angular-momentjs'])
-    .controller('myController', ['$scope', '$http', '$location', '$interval', myCtrlFn]);
+    .controller('myController', ['$scope', '$http', '$location', '$interval', '$timeout', myCtrlFn]);
 
-function myCtrlFn ($scope, $http, $location, $interval) {
+function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
     $http.defaults.headers.post['dataType'] = 'json';
     $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
     var relUrl = $location.absUrl();
@@ -25,6 +26,20 @@ function myCtrlFn ($scope, $http, $location, $interval) {
         $scope.Time = Math.round(new Date().getTime()/1000.0);
         $scope.formattedTime = $scope.Time;
     }, 1000);
+
+    $scope.truncate = function(){
+        $http.get( $scope.dirURL + "/" + URL_TRUNCATE,
+        {
+            params: {truncate : 1}
+        })
+        .then(function (res) {
+            console.clear();
+            $scope.truncated = res.data;
+            $timeout(function(){
+                $scope.truncated = '';
+            }, 1300);
+        });
+    };
 
     $scope.$watch('field10_model',function(newVal, oldVal){
         console.log(newVal, oldVal);

@@ -111,10 +111,33 @@
     <tbody>
         <tr>
             <td>{{$index+1}}</td>
-            <td style="color:#166CD7">{{stock}}</td>
+            <td style="color:#166CD7"><pre>{{stock}}</pre></td>
         </tr>
     </tbody>
 </table>
+<br><br>
+</div>
+<div class='row'>
+<div class= 'col-md-8'>
+<table border='1' style='color:#29302B'>
+    <thead>
+        <tr>
+            <th colspan="2" class="text-center">Log</th>
+        </tr>
+        <tr>
+            <th>#</th>
+            <th>Content</th>
+            <!-- <th>Process</th> -->
+            <!-- <th>Remark</th> -->
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="item in shlog">
+            <td>{{$index+1}}</td>
+            <td class="word-wrapper"><pre>{{item.bash}}</pre></td>
+    </tbody>
+</table>
+</div>
 </div>
 <br>
 <br>
