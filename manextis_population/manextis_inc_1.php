@@ -39,7 +39,7 @@ require_once __ROOT__.'core\manextis_utils.php';
 // load datetime
 $t_unix_today = strtotime(getDateTime());
 // load query strings
-$conf = HelperUTILS::load_conf(__CFG_FILE__);
+$conf = HelperUTIL::load_conf(__CFG_FILE__);
 
 /*
 // for POST METHOD
@@ -106,9 +106,9 @@ if ($t_mocha_test){
 	$o_Mocha->testing = $t_mocha_test;
 	$o_Mocha->x_res_count = $conf['MOCHA']['X_RESULT_COUNT'];
 	$o_Mocha->t_res_count = $conf['MOCHA']['T_RESULT_COUNT'];
-	$o_Mocha->x_res_arr = HelperUTILS::input_string_valid($conf['MOCHA']['X_RESULT_ARR']) ? json_decode($conf['MOCHA']['X_RESULT_ARR'], true) : null;
+	$o_Mocha->x_res_arr = HelperUTIL::input_string_valid($conf['MOCHA']['X_RESULT_ARR']) ? json_decode($conf['MOCHA']['X_RESULT_ARR'], true) : null;
 	$o_Mocha->x_simulate_res_arr = $conf['MOCHA']['X_SIMULATE_RESULT_ARR'];
-	$o_Mocha->t_res_arr = HelperUTILS::input_string_valid($conf['MOCHA']['T_RESULT_ARR'])? json_decode($conf['MOCHA']['T_RESULT_ARR'], true) : null;
+	$o_Mocha->t_res_arr = HelperUTIL::input_string_valid($conf['MOCHA']['T_RESULT_ARR'])? json_decode($conf['MOCHA']['T_RESULT_ARR'], true) : null;
 
 	// $result['o_Mocha'] = $o_Mocha;
 }
@@ -118,7 +118,7 @@ ___________________________________________
 
 * Load query trigger and Instantiate a new process
 *
-* gpc_api UTIL can be used but some HelperUTILS methods are more advanced.
+* gpc_api UTIL can be used but some HelperUTIL methods are more advanced.
 * $result['queryGpc_get']   = gpc_get('query')
 * $result['queryGpc_isset']	= gpc_isset('query')
 *
@@ -128,7 +128,7 @@ ___________________________________________
 */
 
 // find T_customer_name based X_customer_name
-$t_c_lookup = HelperUTILS::mantis_db_query(
+$t_c_lookup = HelperUTIL::mantis_db_query(
 	$o_Mocha->customer_find,
 		$o_Mocha->customer_table,
 		'John Doe'

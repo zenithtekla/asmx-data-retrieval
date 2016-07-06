@@ -11,6 +11,7 @@ $conf = HelperUTIL::load_conf(__CFG_FILE__);
 $t_tables[] = $conf['MANTIS']['wo_so_table'];
 $t_tables[] = $conf['MANTIS']['assembly_table'];
 $t_tables[] = $conf['MANTIS']['customer_table'];
+$t_tables[] = 'mantis_query_manex_sync_table';
 
 $t_query_truncate 	= $conf['MANTIS']['QUERY_TRUNCATE_TABLE'];
 

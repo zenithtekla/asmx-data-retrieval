@@ -44,13 +44,13 @@ $t_unix_today = strtotime(getDateTime());
 // echo date("m/d/Y h:i:s a", $t_unix_today). "\n\n";
 
 // load query strings
-$qrs = HelperUTILS::load_conf(__CFG_FILE__);
+$qrs = HelperUTIL::load_conf(__CFG_FILE__);
 
 $t_mocha_test = $qrs['MOCHA']['TEST'] == true;
 $t_query_trigger = ($t_mocha_test) ? '00091519A' : $_GET['query_trigger'];
 $t_process = new SkewChess($t_query_trigger);
 // with . The following can be commented out.
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_WO_FIND'], $qrs['MANTIS']['wo_so_table'], $t_query_trigger);
+$response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_WO_FIND'], $qrs['MANTIS']['wo_so_table'], $t_query_trigger);
 
 $result = [
 	'Mocha' => $t_mocha_test,
@@ -71,7 +71,7 @@ $result['RESPONSE_11'] = $response;
 */
 $t_query_trigger = ($t_mocha_test) ? 'asiakas1' : $_GET['query_trigger'];
 
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_CUSTOMER_FIND'], $qrs['MANTIS']['customer_table'], $t_query_trigger);
+$response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_CUSTOMER_FIND'], $qrs['MANTIS']['customer_table'], $t_query_trigger);
 
 $result['queryTrigger_2'] = $t_query_trigger;
 $result['RESPONSE_22'] = $response;

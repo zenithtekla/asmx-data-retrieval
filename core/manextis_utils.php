@@ -519,36 +519,43 @@ class SkewChess{
 						case preg_match("/SO_NO/", $key, $match):
 							$t_set_at = "sono='%d'";
 							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						case preg_match("/QTY/", $key, $match):
 							$t_set_at = "quantity='%d'";
 							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						case preg_match("/DUE_DATE/", $key, $match):
 							$t_set_at = "due='%d'";
 							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						case preg_match("/ASSY_NO/", $key, $match):
 							$t_set_at = "number='%s'";
 							$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						case preg_match("/REVISION/", $key, $match):
 							$t_set_at = "revision='%s'";
 							$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						case preg_match("/CUST_NAME/", $key, $match):
 							$t_set_at = "name='%s'";
 							$t_update_for[$q_customer_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						case preg_match("/CUST_PO_NO/", $key, $match):
 							$t_set_at = "pono='%d'";
 							$t_update_for[$q_customer_table][$t_set_at] = $value[0];
+							if ($value[1])
 							$t_unmatch[$key] = $value[1];
 							break;
 						default:
@@ -556,8 +563,8 @@ class SkewChess{
 							break;
 					}
 				}
-
-				$result['shell'][] = shlog( '$ unmatch: '. implode(', ', $t_unmatch));
+				if($t_unmatch)
+					$result['shell'][] = shlog( '$ unmatch: '. implode(', ', $t_unmatch));
 				$result['update_prep'] = $t_update_for;
 				// prepare update query
 
@@ -595,7 +602,7 @@ class SkewChess{
 				$result['pending_stock'] = $t_qr;
 				if ($result['pendingInsert']){
 					foreach ($result['pendingInsert'] as $key => $value) {
-						$t_query[] = $value['query_string'];
+						$t_query[] = $value['query_string'][0];
 					}
 				}
 
