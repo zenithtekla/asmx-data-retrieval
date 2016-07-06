@@ -39,7 +39,7 @@ require_once __ROOT__.'core\manextis_utils.php';
 // load datetime
 $t_unix_today = strtotime(getDateTime());
 // load query strings
-$conf = HelperUTILS::load_conf(__CFG_FILE__);
+$conf = HelperUTIL::load_conf(__CFG_FILE__);
 
 /*
 // for POST METHOD
@@ -106,9 +106,9 @@ if ($t_mocha_test){
 	$o_Mocha->testing = $t_mocha_test;
 	$o_Mocha->x_res_count = $conf['MOCHA']['X_RESULT_COUNT'];
 	$o_Mocha->t_res_count = $conf['MOCHA']['T_RESULT_COUNT'];
-	$o_Mocha->x_res_arr = HelperUTILS::input_string_valid($conf['MOCHA']['X_RESULT_ARR']) ? json_decode($conf['MOCHA']['X_RESULT_ARR'], true) : null;
+	$o_Mocha->x_res_arr = HelperUTIL::input_string_valid($conf['MOCHA']['X_RESULT_ARR']) ? json_decode($conf['MOCHA']['X_RESULT_ARR'], true) : null;
 	$o_Mocha->x_simulate_res_arr = $conf['MOCHA']['X_SIMULATE_RESULT_ARR'];
-	$o_Mocha->t_res_arr = HelperUTILS::input_string_valid($conf['MOCHA']['T_RESULT_ARR'])? json_decode($conf['MOCHA']['T_RESULT_ARR'], true) : null;
+	$o_Mocha->t_res_arr = HelperUTIL::input_string_valid($conf['MOCHA']['T_RESULT_ARR'])? json_decode($conf['MOCHA']['T_RESULT_ARR'], true) : null;
 
 	// $result['o_Mocha'] = $o_Mocha;
 }
@@ -127,7 +127,7 @@ ___________________________________________
 * 00091519A, 197390A1
 */
 $t_query_trigger = ($t_mocha_test) ? '197390A1' : $_GET['query'];
-$t_creator_id 	= ($t_mocha_test) ? $conf['MOCHA']['CREATOR_ID'] : $_GET['creator_id'];
+$t_creator_id 	= ($t_mocha_test) ? $conf['MOCHA']['CREATOR_ID'] : $_GET['creator_id']; // auth_get_current_user_id(); with require_once( 'current_user_api.php' ); or from $_GET, EASIEST 1. inject view.html into an existing PHP file where there is a user_id or current_user_api loaded. Send it to Angular (ng-init as done in image slider or ng-model), 2. grab it and do AJAX.
 
 // instantiation
 $t_process = new SkewChess($t_query_trigger, $t_creator_id);

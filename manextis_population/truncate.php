@@ -6,7 +6,7 @@ require_once __ROOT__.'core.php';
 require_once __ROOT__.'core\xt_util.php';
 
 // load query strings
-$conf = HelperUTILS::load_conf(__CFG_FILE__);
+$conf = HelperUTIL::load_conf(__CFG_FILE__);
 
 $t_tables[] = $conf['MANTIS']['wo_so_table'];
 $t_tables[] = $conf['MANTIS']['assembly_table'];
@@ -15,7 +15,7 @@ $t_tables[] = $conf['MANTIS']['customer_table'];
 $t_query_truncate 	= $conf['MANTIS']['QUERY_TRUNCATE_TABLE'];
 
 foreach ($t_tables as $table) {
-	HelperUTILS::mantis_db_query($t_query_truncate, $table);
+	HelperUTIL::mantis_db_query($t_query_truncate, $table);
 }
 
 $files = glob('log/*'); // get all file names

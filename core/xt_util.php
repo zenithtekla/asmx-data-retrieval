@@ -8,9 +8,9 @@
 	* DbSkewer CoreAPI
 */
 /*
-* The helperUTILS class is highly reusable and can be extended for inheritance and instantiation use.
+* The helperUTIL class is highly reusable and can be extended for inheritance and instantiation use.
 */
-class HelperUTILS{
+class HelperUTIL{
 	const CFG_FILE = 'cfg/manextis_conf.ini';
 	protected static $id;
 	public static function input_string_valid($str){

@@ -8,17 +8,17 @@ require_once __ROOT__.'core.php';
 
 // echo 'Current PHP version: ' . phpversion();
 // load query strings
-$qrs = HelperUTILS::load_conf(__CFG_FILE__);
+$qrs = HelperUTIL::load_conf(__CFG_FILE__);
 
 $t_query_trigger = '1893';
 $t_query_params = ['so0002', 8];
 $t_query_param1 = 'so0002';
 $t_query_param2 = 8;
 
-$t_query_trigger = HelperUTILS::query_trigger_handler($t_query_trigger);
+$t_query_trigger = HelperUTIL::query_trigger_handler($t_query_trigger);
 $result['queryTrigger'] = $t_query_trigger;
 
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_WO_FIND'], $qrs['MANTIS']['wo_so_table'], $t_query_trigger);
+$response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_WO_FIND'], $qrs['MANTIS']['wo_so_table'], $t_query_trigger);
 $result = array_merge($result, ['res1' => $response]);
 
 /* ---
@@ -27,7 +27,7 @@ $result = array_merge($result, ['res1' => $response]);
    ---
 */
 
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_SO_FIND'], ['mantis_plugin_serials_serial_table', $t_query_param1, $t_query_param2]);
+$response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_SO_FIND'], ['mantis_plugin_serials_serial_table', $t_query_param1, $t_query_param2]);
 $result = array_merge($result, ['res2' => $response]);
 
 /* ---
@@ -36,7 +36,7 @@ $result = array_merge($result, ['res2' => $response]);
    ---
 */
 
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_SO_FIND'], 'mantis_plugin_serials_serial_table', $t_query_param1, $t_query_param2);
+$response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_SO_FIND'], 'mantis_plugin_serials_serial_table', $t_query_param1, $t_query_param2);
 $result = array_merge($result, ['res3' => $response]);
 /* ---
 		END Response_3
@@ -49,7 +49,7 @@ $t_query_param3 = 2;
 $t_query_param4 = 1461875091;
 $t_query_param5 = 1461876888;
 
-$response = HelperUTILS::mantis_db_query(
+$response = HelperUTIL::mantis_db_query(
 	$qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'],
 
 	[$qrs['MANTIS']['customer_table'], $t_query_param1, $t_query_param2, $t_query_param3, $t_query_param4, $t_query_param5],
@@ -64,7 +64,7 @@ $result = array_merge($result, ['res4' => $response]);
    ---
 */
 
-$response = HelperUTILS::mantis_db_query($qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'], $qrs['MANTIS']['customer_table'], 'Jean Doe', 'jean.pono.002', 3, 1461801111, 1461702001);
+$response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'], $qrs['MANTIS']['customer_table'], 'Jean Doe', 'jean.pono.002', 3, 1461801111, 1461702001);
 $result = array_merge($result, ['res5' => $response]);
 ?>
 <pre>

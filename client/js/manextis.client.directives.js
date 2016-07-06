@@ -71,13 +71,13 @@ function resultFetch($location, $http){
 			            res.data = JSON.parse(res.data);
 		            }
 		            console.log(res.data);
-	            	var response = res.data.sync.response || null;
+	            	var pipe = res.data.sync.pipe || null;
 	            	var fullhouse = res.data.sync.fullhouse || null;
 	            	var shell = res.data.sync.shell || null;
 
 	            	console.log("Main findings: ");
-	            	console.log(response);
-		            var jobj = (typeof response.response ==='string') ? JSON.parse(response.response) : response.response;
+	            	console.log(pipe);
+		            var jobj = (typeof pipe.response ==='string') ? JSON.parse(pipe.response) : pipe.response;
 		            try {
 		            	if (!jobj) throw new Error("Undefined object, response: ");
 		            	$scope.no_result = Object.keys(jobj).length === 0 || jobj == null;
@@ -138,8 +138,8 @@ function resultFetch($location, $http){
 		            	$scope.xset = o;
 		            	$scope.tset = ob || null;
 		            	$scope.shlog = oc || null;
-		            	$scope.error = response.error || null;
-		            	$scope.stock = response.stock || null;
+		            	$scope.error = pipe.error || null;
+		            	$scope.stock = pipe.stock || null;
 		            	$scope.no_query = (!$scope.stock);
 		            	$scope.no_insertion = (!$scope.tset);
 		            }
