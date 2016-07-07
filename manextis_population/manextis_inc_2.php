@@ -95,6 +95,8 @@ $o_Mocha->update_wo_so_table 	= $conf['MANTIS']['QUERY_UPDATE_WO_TABLE'];
 $o_Mocha->update_assembly_table = $conf['MANTIS']['QUERY_UPDATE_ASSEMBLY_TABLE'];
 $o_Mocha->update_customer_table = $conf['MANTIS']['QUERY_UPDATE_CUSTOMER_TABLE'];
 
+$o_Mocha->fields_pending_approval = $conf['MANTIS']['FIELDS_PENDING_APPROVAL'];
+
 
 if ($t_mocha_test){
 	$o_Mocha->testing = $t_mocha_test;

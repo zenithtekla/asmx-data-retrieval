@@ -86,11 +86,13 @@ class SkewChess{
 	* Build update query
 	*/
 	function update_a_record($p_update, $p_query, $p_table, $p_where){
+
 		$p_set_at = implode(', ', array_keys($p_update));
 		$p_query = str_replace('?', $p_set_at, $p_query);
 		$params = array_values($p_update);
 		array_unshift($params, $p_table);
 		array_push($params, $p_where);
+
 		return HelperUTIL::mantis_db_query_build($p_query, $params);
 	}
 
@@ -203,9 +205,11 @@ class SkewChess{
 				* UnitTest, IDE environment, IDE utilities (Compiler, Debugger, Lint...), Shell scripting (npm, pip, gem, bower, chmod, md) is hardly performed in PHP if PHP development rocks on the sand of Windows and TextEditor
 				*/
 				if (empty($o_Mocha)) throw new Exception(' 13 - Mocha isn\'t defined.');
+				$result['shell'][] = shlog('$ init() testing_mode = '. (($o_Mocha->testing) ? 'true': 'false'));
+
 				// override result count.
 				$result['Xquery.count'] = ($o_Mocha->testing && !empty($o_Mocha->x_res_count)) ? $o_Mocha->x_res_count : count($X_res_arr);
-				$result['shell'][] = shlog('init() Xquery.count = '. $result['Xquery.count']);
+				$result['shell'][] = shlog('$ init() Xquery.count = '. $result['Xquery.count']);
 
 				if ($result['Xquery.count'] < 1) throw new Exception('02.1 - X_Query result has NO matching entry');
 				if ($result['Xquery.count'] > 1) throw new Exception('03.1 - X_Query result contains more than one entry');
@@ -247,7 +251,7 @@ class SkewChess{
 					$t_count_override = true;
 				}
 
-				$result['shell'][] = shlog( 'init() Tquery.count = '. $result['Tquery.count']);
+				$result['shell'][] = shlog( '$ init() Tquery.count = '. $result['Tquery.count']);
 
 				/* --- CONDITION check --- */
 				if ($result['Tquery.count'] > 1) throw new Exception('03.2 - T_Query result contains more than one entry');
@@ -256,7 +260,7 @@ class SkewChess{
 						if testing is enabled --- */
  				//  Limitation: only grab first element of the result array.
 				$T_res_array = ($o_Mocha->testing && !empty($o_Mocha->t_res_arr)) ? $o_Mocha->t_res_arr[0] : $result['Tquery.response'];
-				$result['shell'][] = shlog( '$ T_res_arr: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
+				$result['shell'][] = shlog( '$ init() T_res_arr: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
 				$X_res_array = ($o_Mocha->testing && !empty($o_Mocha->x_res_arr)) ? $o_Mocha->x_res_arr[0] : $X_res_arr[0];
 
 				/* --- CONDITION check --- */
@@ -330,14 +334,14 @@ class SkewChess{
 						$result['shell'][] = shlog( '$t_customer_lookup: '. json_encode($t_customer_lookup['response'],JSON_PRETTY_PRINT));
 						if (!$t_customer_lookup['response']['count']){
 							/* customer_name not exist -> prep() to insertALL */
-							$result['shell'][] = shlog( 'prep() to Queries for InsertALL everything cuz customer_lookup is negative -> customer NOT exist.');
+							$result['shell'][] = shlog( 'prep() to Queries for InsertALL everything cuz customer_lookup BY name = '. $source['CUST_NAME'] .' gives no result -> customer NOT exist.');
 							// 3 src.tables ready to perform query build
 							$source['insert_customer_table'] 	= $o_Mocha->insert_customer_table;
 							$source['insert_assembly_table'] 	= $o_Mocha->insert_assembly_table;
 							$source['insert_wo_so_table']    	= $o_Mocha->insert_wo_so_table;
 						} else {
 							$source['customer_id'] = $t_customer_lookup['response']['response'][0]['CUST_ID'];
-							$result['shell'][] = shlog( '@340 $ customer_id: '. json_encode($source['customer_id'], JSON_PRETTY_PRINT));
+							$result['shell'][] = shlog( '@344 $ customer_id: '. json_encode($source['customer_id'], JSON_PRETTY_PRINT));
 							// 2 src.tables ready to perform query build
 							$source['insert_assembly_table'] 	= $o_Mocha->insert_assembly_table;
 							$source['insert_wo_so_table'] 		= $o_Mocha->insert_wo_so_table;
@@ -356,7 +360,6 @@ class SkewChess{
 					foreach ($result['insert.pending']['qr'] as $query) {
 						$result['insertion'][] = HelperUTIL::mantis_db_invoke_insert($query['query_string'], $query['table_of_insert']);
 					}
-
 
 					$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
 
@@ -385,166 +388,208 @@ class SkewChess{
 				o.xt_compare.res.diff is implemented in other language.
 				*/
 
+				$result['shell'][] = shlog( '$ diff(): '. json_encode($XT_all_diff, JSON_PRETTY_PRINT));
+
 				// set 2 key values;
 				$t_uniq_key 	= $X_res_array['UNIQ_KEY']; // using Manex.UNIQ_KEY  on Mantis too.
 				$t_wo 			= $X_res_array['WO_NO']; // = $this->getQueryTrigger() = $T_res_array['WO_NO']
 
 				// instead of going and updating everything using 3 queries QUERY_UPDATE_WO_TABLE, QUERY_UPDATE_ASSEMBLY_TABLE, and QUERY_UPDATE_CUSTOMER_TABLE which disregard performance and does all update anyway, the righteous approach should be to the following route of query string build.
-				$t_update_for = [];
-				$t_unmatch = [];
-				if ($XT_all_diff && is_array($XT_all_diff))
-				foreach ($XT_all_diff as $key => $value) {
-					$t_key = $key;
-					switch (true) {
-						case preg_match("/SO_NO/", $key, $match):
-							// need moderation
-							$t_set_at = "sono='%d'";
-							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						case preg_match("/QTY/", $key, $match):
-							$t_set_at = "quantity='%d'";
-							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						case preg_match("/DUE_DATE/", $key, $match):
-							$t_set_at = "due='%d'";
-							$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						case preg_match("/ASSY_NO/", $key, $match):
-							// need moderation
-							$t_set_at = "number='%s'";
-							$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						case preg_match("/REVISION/", $key, $match):
-							$t_set_at = "revision='%s'";
-							$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						case preg_match("/CUST_NAME/", $key, $match):
-							// need moderation
-							$t_set_at = "name='%s'";
-							$t_update_for[$q_customer_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						case preg_match("/CUST_PO_NO/", $key, $match):
-							$t_set_at = "pono='%d'";
-							$t_update_for[$q_customer_table][$t_set_at] = $value[0];
-							if ($value[1])
-							$t_unmatch[$key] = $value[1];
-							break;
-						default:
-							# possibility to perform update all with those 3 queries OR use count(array per table)>0 as condition to update an entire table selectively.
-							break;
+
+				if ($XT_all_diff && is_array($XT_all_diff)){
+					$t_pending_approval = ($o_Mocha->fields_pending_approval) ? explode(',', $o_Mocha->fields_pending_approval) : 0;
+
+					$result['shell'][] = shlog('$ load() must-approved fields: '. json_encode($t_pending_approval, JSON_PRETTY_PRINT));
+					// arrays are used for now in PHP to avoid transform back and forth between object and array, objects are used in other language for performance wise
+					$t_update_for = [];
+					$t_unmatch = [];
+
+					foreach ($XT_all_diff as $key => $value) {
+						$t_key = $key;
+						switch (true) {
+							case preg_match("/SO_NO/", $key, $match):
+								$t_set_at = "sono='%d'";
+								$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_wo_so_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							case preg_match("/QTY/", $key, $match):
+								$t_set_at = "quantity='%d'";
+								$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_wo_so_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							case preg_match("/DUE_DATE/", $key, $match):
+								$t_set_at = "due='%d'";
+								$t_update_for[$q_wo_so_table][$t_set_at] = $value[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_wo_so_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							case preg_match("/ASSY_NO/", $key, $match):
+								// need moderation
+								$t_set_at = "number='%s'";
+								$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_assembly_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							case preg_match("/REVISION/", $key, $match):
+								$t_set_at = "revision='%s'";
+								$t_update_for[$q_assembly_table][$t_set_at] = $value[0];
+								$t_match = $match[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_assembly_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							case preg_match("/CUST_NAME/", $key, $match):
+								// need moderation
+								$t_set_at = "name='%s'";
+								$t_update_for[$q_customer_table][$t_set_at] = $value[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_customer_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							case preg_match("/CUST_PO_NO/", $key, $match):
+								$t_set_at = "pono='%d'";
+								$t_update_for[$q_customer_table][$t_set_at] = $value[0];
+								if ($t_pending_approval)
+								if (in_array($match[0], $t_pending_approval))
+									$t_approval_reg[$q_customer_table] = 1;
+								if ($value[1])
+									$t_unmatch[$key] = $value[1];
+								break;
+							default:
+								# possibility to perform update all with those 3 queries OR use count(array per table)>0 as condition to update an entire table selectively.
+								break;
+						}
 					}
-				}
-				if($t_unmatch)
-					$result['shell'][] = shlog( '$ unmatch: '. implode(', ', $t_unmatch));
-				$result['update.prep'] = $t_update_for;
-				// prepare update query
 
-				// status<0 deactive, status = 0 obselete, status>0 active, status= 1: , status=2: , status=3: recently updated.
-				// on implode add status = 3 by default for having updated received.
+					if($t_unmatch)
+						$result['shell'][] = shlog( '$ finally, unmatch: '. implode(', ', $t_unmatch));
+					$result['update.prep'] = $t_update_for;
+					// prepare update query
 
-				/*if (empty($XT_diff) && empty($XT_null) && !empty($XT_same)) throw new Exception('06 - XT_Compare results in NO diff');
-				if (!empty($XT_null)) throw new Exception('07 - XT_Compare results in NULL fields in MantisDb. Update?');
-				if ( (!empty($XT_diff) && empty($XT_same) && empty($XT_null))
-				   || (!empty($XT_diff) && $T_res_array['WO_NO'] === $X_res_array['WO_NO'] && empty($XT_null))) throw new Exception('04 - Ready to insert ALL mantis_db_invoke_insert()');*/ // meaning the entire Mantis entry is different  very unlikely to happen
+					// status<0 deactive, status = 0 obselete, status>0 active, status= 1: , status=2: , status=3: recently updated.
+					// on implode add status = 3 by default for having updated received.
 
-				// Unfolding the defined mantis set of tables
- 				$q_update_wo_so_table    	= $o_Mocha->update_wo_so_table;
-				$q_update_assembly_table 	= $o_Mocha->update_assembly_table;
-				$q_update_customer_table 	= $o_Mocha->update_customer_table;
+					/*if (empty($XT_diff) && empty($XT_null) && !empty($XT_same)) throw new Exception('06 - XT_Compare results in NO diff');
+					if (!empty($XT_null)) throw new Exception('07 - XT_Compare results in NULL fields in MantisDb. Update?');
+					if ( (!empty($XT_diff) && empty($XT_same) && empty($XT_null))
+					   || (!empty($XT_diff) && $T_res_array['WO_NO'] === $X_res_array['WO_NO'] && empty($XT_null))) throw new Exception('04 - Ready to insert ALL mantis_db_invoke_insert()');*/ // meaning the entire Mantis entry is different  very unlikely to happen
 
-				$q_query_sync_table 		= $o_Mocha->query_sync_table;
-				$q_query_sync_table_find 	= $o_Mocha->query_sync_table_find;
-				$q_query_sync_table_insert 	= $o_Mocha->query_sync_table_insert;
+					// Unfolding the defined mantis set of tables
+	 				$q_update_wo_so_table    	= $o_Mocha->update_wo_so_table;
+					$q_update_assembly_table 	= $o_Mocha->update_assembly_table;
+					$q_update_customer_table 	= $o_Mocha->update_customer_table;
+
+					$q_query_sync_table 		= $o_Mocha->query_sync_table;
+					$q_query_sync_table_find 	= $o_Mocha->query_sync_table_find;
+					$q_query_sync_table_insert 	= $o_Mocha->query_sync_table_insert;
 
 
- 				if ($t_update_for[$q_wo_so_table]){
-					$t_qr[$q_wo_so_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_wo_so_table],$q_update_wo_so_table, $q_wo_so_table, $t_wo);
-					$t_query[$q_wo_so_table] = $t_qr[$q_wo_so_table][$t_timestamp]['query_string'][0];
-				}
-				if ($t_update_for[$q_assembly_table]){
-					$t_qr[$q_assembly_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_assembly_table],$q_update_assembly_table, $q_assembly_table, $t_uniq_key);
-					$t_query[$q_assembly_table] = $t_qr[$q_assembly_table][$t_timestamp]['query_string'][0];
-				}
-				if ($t_update_for[$q_customer_table]){
-					$t_qr[$q_customer_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_customer_table],$q_update_customer_table, $q_customer_table, $t_customer_id);
-					$t_query[$q_customer_table] = $t_qr[$q_customer_table][$t_timestamp]['query_string'][0];
-				}
-				// update.pending is how MongoDB (document database style would look like: update.pending\table\time_stamp\query_text
-				$result['update.pending'] = $t_qr;
+	 				if ($t_update_for[$q_wo_so_table]){
+						$t_qr[$q_wo_so_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_wo_so_table],$q_update_wo_so_table, $q_wo_so_table, $t_wo);
+						$t_query[$q_wo_so_table] = $t_qr[$q_wo_so_table][$t_timestamp]['query_string'][0];
+					}
+					if ($t_update_for[$q_assembly_table]){
+						$t_qr[$q_assembly_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_assembly_table],$q_update_assembly_table, $q_assembly_table, $t_uniq_key);
+						$t_query[$q_assembly_table] = $t_qr[$q_assembly_table][$t_timestamp]['query_string'][0];
+					}
+					if ($t_update_for[$q_customer_table]){
+						$t_qr[$q_customer_table][$t_timestamp] = $this->update_a_record($t_update_for[$q_customer_table],$q_update_customer_table, $q_customer_table, $t_customer_id);
+						$t_query[$q_customer_table] = $t_qr[$q_customer_table][$t_timestamp]['query_string'][0];
+					}
+					// update.pending is how MongoDB (document database style would look like: update.pending\table\time_stamp\query_text
+					$result['update.pending'] = $t_qr;
 
-				/* Verdict from a master CS major & fix: PHP does yield results on its (back-end) view,
-				* but there come minor errors (shown in back-end view)
-				*; resulting in no json_response fetched and no display on the front.
-				* Source of this problem is that PHP is NOT a loose-type language as Javascript, so PHP caught on issues of variable types: unset, null, undefine.. with unfovorable errors
-				* Not only definition like this cannot be made with PHP syntax
-				* $o ={
-						x:'x_value',
-						y: 2,
-						z: function(){}
-					};
-
-					BUT also it is difficult to implement MVC patterns and Modular programming technique (or likely similar technique) in PHP without large amount of efforts, the Laravel, Symphony, CodeIgniter..
-					Those implementation simplifies the development by allowing
-					CodeFactory and Refactory, Modules load
-					with
-						require("fs");
-
-						app.use('/profile', profile);
-
-						module.exports = $o;
-						// OR
-						module.exports = {
-								m:'m_value',
-								n: 365,
-								p: function(){}
+					/* Verdict from a master CS major & fix: PHP does yield results on its (back-end) view,
+					* but there come minor errors (shown in back-end view)
+					*; resulting in no json_response fetched and no display on the front.
+					* Source of this problem is that PHP is NOT a loose-type language as Javascript, so PHP caught on issues of variable types: unset, null, undefine.. with unfovorable errors
+					* Not only definition like this cannot be made with PHP syntax
+					* $o ={
+							x:'x_value',
+							y: 2,
+							z: function(){}
 						};
 
-					resolving
-					Namespace issues (Namespace.Namespace.Namespace, functional Namespaces, ...),
-					baseUrl handling (accessing to baseUrl, accessing to routes, abstracting the Url routes, and prevent direct access),
-					more organization of project-folder structure (accessing to routes is handled so there is minimal need of using ../../../myfile.ini or require('./a/long/path/to/myModule'); ),
-					problem of nested scopes (handling of rootScope and context(ual) scope,
-					problem of functional programming (when callbacks happen to be looped|nested everywhere).
-				*/
-				/* this line below is to fix that minor issue, handling when all matches, NO diff from X&T. Objective:
-				* end nicely with fullhouse and notification dump
-				* Prevent from happen the addding of another pending_update query as a duplicate into the database.
-				*/
-				if(!$t_query) {
-					$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
-					$result['fullhouse'] = $result['Tquery.response'];
-					throw new Exception('06.1 - identical set of data from two sources/databases');
+						BUT also it is difficult to implement MVC patterns and Modular programming technique (or likely similar technique) in PHP without large amount of efforts, the Laravel, Symphony, CodeIgniter..
+						Those implementation simplifies the development by allowing
+						CodeFactory and Refactory, Modules load
+						with
+							require("fs");
+
+							app.use('/profile', profile);
+
+							module.exports = $o;
+							// OR
+							module.exports = {
+									m:'m_value',
+									n: 365,
+									p: function(){}
+							};
+
+						resolving
+						Namespace issues (Namespace.Namespace.Namespace, functional Namespaces, ...),
+						baseUrl handling (accessing to baseUrl, accessing to routes, abstracting the Url routes, and prevent direct access),
+						more organization of project-folder structure (accessing to routes is handled so there is minimal need of using ../../../myfile.ini or require('./a/long/path/to/myModule'); ),
+						problem of nested scopes (handling of rootScope and context(ual) scope,
+						problem of functional programming (when callbacks happen to be looped|nested everywhere).
+					*/
+					/* this line below is to fix that minor issue, handling when all matches, NO diff from X&T. Objective:
+					* end nicely with fullhouse and notification dump
+					* Prevent from happen the addding of another pending_update query as a duplicate into the database.
+					*/
+					if($t_pending_approval)
+					foreach ($t_query as $key => $query) {
+						if (!$t_approval_reg[$key]){
+							HelperUTIL::mantis_db_query_update($query);
+							unset($t_query[$key]);
+						}
+					}
+
+					if(!$t_query) {
+						$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
+						$result['fullhouse'] = $T_response['response']['response'][0];
+
+						if ($result['fullhouse'])
+						$result['shell'][] = shlog( '$ fullhouse: '. json_encode($result['fullhouse'], JSON_PRETTY_PRINT));
+
+						throw new Exception('06.1 - identical set of data from two sources/databases');
+					}
+
+					$t_query_text = HelperUTIL::input_string_escape(implode('; ', $t_query));
+					$result['update.stock'] = $t_query;
+
+					// dump out current manTis.
+					$result['insertion'] = $T_res_array;
+					$result['shell'][] = shlog( '$ T_res_array: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
+					// dump out some remarks
+					$t_remark = 'query.wo = ' . $t_query_trigger . '\t\t' . 'query.customer_name = ' .$X_res_array['CUST_NAME'] . '\t\t'. 'query.creator_id = '. $this->getCreatorId() . '\t\t' . 'manTis.current_value: '. json_encode($t_unmatch, JSON_PRETTY_PRINT);
+
+					$result['pipe']['stock'] = $t_query_text;
+
+					$response = HelperUTIL::mantis_db_query($q_query_sync_table_find, $q_query_sync_table, $t_query_text);
+					if ($response['response']['count'])
+						throw new Exception('06.2 - query_text exists');
+
+					HelperUTIL::mantis_db_query_insert($q_query_sync_table_insert, $q_query_sync_table, $t_query_text, $t_remark, $this->getCreatorId(), $t_timestamp, 0, 0, 0);
 				}
-
-				$t_query_text = HelperUTIL::input_string_escape(implode('; ', $t_query));
-				$result['update.stock'] = $t_query;
-
-				// dump out current manTis.
-				$result['insertion'] = $T_res_array;
-				$result['shell'][] = shlog( '$ T_res_array: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
-				// dump out some remarks
-				$t_remark = 'query.wo = ' . $t_query_trigger . '\t\t' . 'query.customer_name = ' .$X_res_array['CUST_NAME'] . '\t\t'. 'query.creator_id = '. $this->getCreatorId() . '\t\t' . 'manTis.current_value: '. json_encode($t_unmatch, JSON_PRETTY_PRINT);
-
-				$result['pipe']['stock'] = $t_query_text;
-
-				$response = HelperUTIL::mantis_db_query($q_query_sync_table_find, $q_query_sync_table, $t_query_text);
-				if ($response['response']['count'])
-					throw new Exception('06.2 - query_text exists');
-
-				HelperUTIL::mantis_db_query_insert($q_query_sync_table_insert, $q_query_sync_table, $t_query_text, $t_remark, $this->getCreatorId(), $t_timestamp, 0, 0, 0);
-
 			} else throw new Exception('01 - invalid response from Manex');
 
 		} catch (Exception $e) {

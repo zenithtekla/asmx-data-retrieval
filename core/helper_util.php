@@ -144,6 +144,7 @@ class HelperUTIL{
 			$response = [];
 			$args = func_get_args();
 			$response['args'] = $args;
+
 			if (count($args) === 1){
 				$query = ( is_array($args[0]) ) ? $args[0] : $args;
 			} else {
@@ -152,8 +153,9 @@ class HelperUTIL{
 			}
 
 			foreach ($query as $qr) {
-				if (is_string($qr))
+				if (is_string($qr)){
 					db_query_bound( $qr );
+				}
 				else db_query_bound( $qr[0] );
 			}
 			// db_query_bound( $query[0] );
