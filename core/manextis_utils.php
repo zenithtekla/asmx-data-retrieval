@@ -316,7 +316,7 @@ class SkewChess{
 							$XT_lineup = $this->xt_compare($X_subset, $T_subset);
 							$XT_cust_diff = $XT_lineup['response']['all_diff'];
 							$result['shell'][] = shlog( '$ diff->pendingUpdate: ' . json_encode($t_c_name_lookup_result['response'], JSON_PRETTY_PRINT));
-							// build pending updateQuery
+							// TODO: build pending updateQuery
 						}
 
 						// 2 src.tables ready to perform query build
@@ -332,6 +332,7 @@ class SkewChess{
 								$source['CUST_NAME']
 						);
 						$result['shell'][] = shlog( '$t_customer_lookup: '. json_encode($t_customer_lookup['response'],JSON_PRETTY_PRINT));
+
 						if (!$t_customer_lookup['response']['count']){
 							/* customer_name not exist -> prep() to insertALL */
 							$result['shell'][] = shlog( 'prep() to Queries for InsertALL everything cuz customer_lookup BY name = '. $source['CUST_NAME'] .' gives no result -> customer NOT exist.');
@@ -465,7 +466,7 @@ class SkewChess{
 									$t_unmatch[$key] = $value[1];
 								break;
 							case preg_match("/CUST_PO_NO/", $key, $match):
-								$t_set_at = "pono='%d'";
+								$t_set_at = "pono='%s'";
 								$t_update_for[$q_customer_table][$t_set_at] = $value[0];
 								if ($t_pending_approval)
 								if (in_array($match[0], $t_pending_approval))
@@ -479,8 +480,8 @@ class SkewChess{
 						}
 					}
 
-					if($t_unmatch)
-						$result['shell'][] = shlog( '$ finally, unmatch: '. implode(', ', $t_unmatch));
+					/*if($t_unmatch)
+						$result['shell'][] = shlog( '$ finally, unmatch: '. implode(', ', $t_unmatch));*/
 					$result['update.prep'] = $t_update_for;
 					// prepare update query
 
@@ -516,6 +517,14 @@ class SkewChess{
 					}
 					// update.pending is how MongoDB (document database style would look like: update.pending\table\time_stamp\query_text
 					$result['update.pending'] = $t_qr;
+
+					if($t_pending_approval)
+					foreach ($t_query as $key => $query) {
+						if (!$t_approval_reg[$key]){
+							HelperUTIL::mantis_db_query_update($query);
+							unset($t_query[$key]);
+						}
+					}
 
 					/* Verdict from a master CS major & fix: PHP does yield results on its (back-end) view,
 					* but there come minor errors (shown in back-end view)
@@ -555,14 +564,6 @@ class SkewChess{
 					* end nicely with fullhouse and notification dump
 					* Prevent from happen the addding of another pending_update query as a duplicate into the database.
 					*/
-					if($t_pending_approval)
-					foreach ($t_query as $key => $query) {
-						if (!$t_approval_reg[$key]){
-							HelperUTIL::mantis_db_query_update($query);
-							unset($t_query[$key]);
-						}
-					}
-
 					if(!$t_query) {
 						$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
 						$result['fullhouse'] = $T_response['response']['response'][0];
@@ -589,6 +590,12 @@ class SkewChess{
 						throw new Exception('06.2 - query_text exists');
 
 					HelperUTIL::mantis_db_query_insert($q_query_sync_table_insert, $q_query_sync_table, $t_query_text, $t_remark, $this->getCreatorId(), $t_timestamp, 0, 0, 0);
+				} else {
+					$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
+					$result['fullhouse'] = $T_response['response']['response'][0];
+
+					if ($result['fullhouse'])
+					$result['shell'][] = shlog( '$ fullhouse: '. json_encode($result['fullhouse'], JSON_PRETTY_PRINT));
 				}
 			} else throw new Exception('01 - invalid response from Manex');
 
@@ -601,7 +608,7 @@ class SkewChess{
 					$t_bash[] = $v;
 				}
 			}
-			$log = '<body style="color:white;background-color:rgb(0, 58, 88)">'. implode('<br><br>', $t_bash). '</body>';
+			$log = '<body style="color:white;background-color:rgb(0, 58, 88)"><pre>'. implode('<br>', $t_bash). '</pre></body>';
 			file_put_contents('log/xtlog_'.$t_timestamp.'.html', $log, FILE_APPEND);
 			return $result;
 			// .sync.response = { response :'json', error: 'string if there is error', stock: 'obj'}
