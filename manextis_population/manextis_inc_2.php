@@ -83,20 +83,13 @@ $o_Mocha->query_sync_table 	= $conf['MANTIS']['query_sync_table'];
 $o_Mocha->customer_find 		= $conf['MANTIS']['QUERY_CUSTOMER_FIND'];
 $o_Mocha->uniq_key_find		= $conf['MANTIS']['QUERY_UNIQ_KEY_FIND'];
 $o_Mocha->assembly_find 		= $conf['MANTIS']['QUERY_ASSEMBLY_FIND'];
-$o_Mocha->cust_id_find 		= $conf['MANTIS']['QUERY_CUST_ID_FIND'];
-$o_Mocha->pono_find 		= $conf['MANTIS']['QUERY_PONO_FIND'];
-
 
 $o_Mocha->insert_wo_so_table 		= $conf['MANTIS']['QUERY_INSERT_WO_TABLE'];
 $o_Mocha->insert_assembly_table 	= $conf['MANTIS']['QUERY_INSERT_ASSEMBLY_TABLE'];
 $o_Mocha->insert_customer_table 	= $conf['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'];
+
 $o_Mocha->query_sync_table_insert 	= $conf['MANTIS']['QUERY_SYNC_TABLE_INSERT'];
 $o_Mocha->query_sync_table_find 	= $conf['MANTIS']['QUERY_SYNC_TABLE_FIND'];
-
-$o_Mocha->lazy_update_wo_so_table 		= $conf['MANTIS']['QUERY_LAZY_UPDATE_WO_TABLE'];
-$o_Mocha->lazy_update_assembly_table 	= $conf['MANTIS']['QUERY_LAZY_UPDATE_ASSEMBLY_TABLE'];
-$o_Mocha->lazy_update_customer_table 	= $conf['MANTIS']['QUERY_LAZY_UPDATE_CUSTOMER_TABLE'];
-$o_Mocha->lazy_update_customer 	= $conf['MANTIS']['QUERY_LAZY_UPDATE_CUSTOMER'];
 
 $o_Mocha->update_wo_so_table 	= $conf['MANTIS']['QUERY_UPDATE_WO_TABLE'];
 $o_Mocha->update_assembly_table = $conf['MANTIS']['QUERY_UPDATE_ASSEMBLY_TABLE'];

@@ -230,7 +230,9 @@ class SkewChess{
 				if (!$t_query_trigger) throw new Exception ('query_trigger = null, verify input or testing boolean');
 
 				$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
-				$result['Tquery'] = $T_response;
+				$result['Tquery.query_string'] = $T_response['query_string'];
+				$result['Tquery.response'] = $T_response['response']['response'][0];
+				$result['Tquery.count'] = $T_response['response']['count'];
 
 				/* ---
 				END T_response
@@ -241,19 +243,19 @@ class SkewChess{
 
 				/* --- OVERRIDE result count --- effective, TESTED */
 				if ($o_Mocha->testing && !($o_Mocha->t_res_count === NULL)){
-					$result['Tquery']['response']['count'] = $o_Mocha->t_res_count;
+					$result['Tquery.count'] = $o_Mocha->t_res_count;
 					$t_count_override = true;
 				}
 
-				$result['shell'][] = shlog( 'init() Tquery.count = '. $result['Tquery']['response']['count']);
+				$result['shell'][] = shlog( 'init() Tquery.count = '. $result['Tquery.count']);
 
 				/* --- CONDITION check --- */
-				if ($result['Tquery']['response']['count'] > 1) throw new Exception('03.2 - T_Query result contains more than one entry');
+				if ($result['Tquery.count'] > 1) throw new Exception('03.2 - T_Query result contains more than one entry');
 
 				/* --- OVERRIDE res_array
 						if testing is enabled --- */
  				//  Limitation: only grab first element of the result array.
-				$T_res_array = ($o_Mocha->testing && !empty($o_Mocha->t_res_arr)) ? $o_Mocha->t_res_arr[0] : $T_response['response']['response'][0];
+				$T_res_array = ($o_Mocha->testing && !empty($o_Mocha->t_res_arr)) ? $o_Mocha->t_res_arr[0] : $result['Tquery.response'];
 				$result['shell'][] = shlog( '$ T_res_arr: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
 				$X_res_array = ($o_Mocha->testing && !empty($o_Mocha->x_res_arr)) ? $o_Mocha->x_res_arr[0] : $X_res_arr[0];
 
@@ -263,8 +265,8 @@ class SkewChess{
 				// acct_date set to 1 (1970) as for now
 				$t_acct_date = $o_Mocha->default_status || 1;
 
-				// if ($result['Tquery']['response']['count'] < 1) throw new Exception('04 - Ready to insertion mantis_db_invoke_insert()');
-				if ($result['Tquery']['response']['count'] < 1 ){
+				// if ($result['Tquery.count'] < 1) throw new Exception('04 - Ready to insertion mantis_db_invoke_insert()');
+				if ($result['Tquery.count'] < 1 ){
 				// meaning that WONO by that unique_key and customer_Id does not exist
 					// prepare src to traverse
 					$source = $X_res_array;
@@ -287,7 +289,7 @@ class SkewChess{
 					);
 					// $result['c_name_lookup'] = $t_c_name_lookup;
 
-					$result['shell'][] = shlog( 'res() $t_c_name_lookup: '. json_encode($t_c_name_lookup['response'], JSON_PRETTY_PRINT));
+					$result['shell'][] = shlog( 'res() $t_c_name_lookup by X.unique_key: '. json_encode($t_c_name_lookup['response'], JSON_PRETTY_PRINT));
 
 					if($t_c_name_lookup['response']['count'])
 					{
@@ -296,9 +298,8 @@ class SkewChess{
 						$T_subset['ASSY_NO'] = $t_c_name_lookup_result['ASSY_NO'];
 						/* the line below is extremely important: assign customer_id to the $source object */
 						$source['customer_id'] = $t_c_name_lookup_result['CUST_ID'];
-						$result['shell'][] = shlog( 'res() $t_c_name_lookup_result: '. json_encode($t_c_name_lookup_result['response'], JSON_PRETTY_PRINT));
 
-						$result['shell'][] = shlog( 'customer exists');
+						$result['shell'][] = shlog( 'unique_key found -> associated assembly and customer exist');
 
 						// $t_assembly_count < 1, continue
 						if ($t_c_name != $source['CUST_NAME'])
@@ -310,7 +311,7 @@ class SkewChess{
 						if($T_subset && $X_subset){
 							$XT_lineup = $this->xt_compare($X_subset, $T_subset);
 							$XT_cust_diff = $XT_lineup['response']['all_diff'];
-							$result['shell'][] = shlog( '$ diff->pendingUpdate: ' . json_encode($XT_cust_diff, JSON_PRETTY_PRINT));
+							$result['shell'][] = shlog( '$ diff->pendingUpdate: ' . json_encode($t_c_name_lookup_result['response'], JSON_PRETTY_PRINT));
 							// build pending updateQuery
 						}
 
@@ -326,7 +327,7 @@ class SkewChess{
 								$q_customer_table,
 								$source['CUST_NAME']
 						);
-						$result['shell'][] = shlog( '$t_customer_lookup: '. json_encode($t_customer_lookup,JSON_PRETTY_PRINT));
+						$result['shell'][] = shlog( '$t_customer_lookup: '. json_encode($t_customer_lookup['response'],JSON_PRETTY_PRINT));
 						if (!$t_customer_lookup['response']['count']){
 							/* customer_name not exist -> prep() to insertALL */
 							$result['shell'][] = shlog( 'prep() to Queries for InsertALL everything cuz customer_lookup is negative -> customer NOT exist.');
@@ -523,7 +524,7 @@ class SkewChess{
 				*/
 				if(!$t_query) {
 					$T_response = HelperUTIL::mantis_db_query($T_query_str, $q_wo_so_table, $q_assembly_table, $q_customer_table, $t_query_trigger);
-					$result['fullhouse'] = $T_response['response']['response'][0];
+					$result['fullhouse'] = $result['Tquery.response'];
 					throw new Exception('06.1 - identical set of data from two sources/databases');
 				}
 
@@ -532,19 +533,17 @@ class SkewChess{
 
 				// dump out current manTis.
 				$result['insertion'] = $T_res_array;
-				$result['shell'][] = shlog( '$ X_res_array: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
+				$result['shell'][] = shlog( '$ T_res_array: '. json_encode($T_res_array, JSON_PRETTY_PRINT));
 				// dump out some remarks
 				$t_remark = 'query.wo = ' . $t_query_trigger . '\t\t' . 'query.customer_name = ' .$X_res_array['CUST_NAME'] . '\t\t'. 'query.creator_id = '. $this->getCreatorId() . '\t\t' . 'manTis.current_value: '. json_encode($t_unmatch, JSON_PRETTY_PRINT);
 
+				$result['pipe']['stock'] = $t_query_text;
+
 				$response = HelperUTIL::mantis_db_query($q_query_sync_table_find, $q_query_sync_table, $t_query_text);
-				if ($response['response']['count']>0) {
-					$result['pipe']['stock'] = $t_query_text;
+				if ($response['response']['count'])
 					throw new Exception('06.2 - query_text exists');
-				}
 
 				HelperUTIL::mantis_db_query_insert($q_query_sync_table_insert, $q_query_sync_table, $t_query_text, $t_remark, $this->getCreatorId(), $t_timestamp, 0, 0, 0);
-
-				$result['pipe']['stock'] = $t_query_text;
 
 			} else throw new Exception('01 - invalid response from Manex');
 
