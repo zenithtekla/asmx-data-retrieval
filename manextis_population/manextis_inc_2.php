@@ -31,7 +31,7 @@ define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
 define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
 require_once __ROOT__.'core.php';
 require_once __ROOT__.'core\date_time.php';
-require_once __ROOT__.'core\xt_util.php';
+require_once __ROOT__.'core\helper_util.php';
 require_once __ROOT__.'core\manextis_utils.php';
 
 // require_once __ROOT__.'core\gpc_api.php';
@@ -83,7 +83,8 @@ $o_Mocha->query_sync_table 	= $conf['MANTIS']['query_sync_table'];
 $o_Mocha->customer_find 		= $conf['MANTIS']['QUERY_CUSTOMER_FIND'];
 $o_Mocha->uniq_key_find		= $conf['MANTIS']['QUERY_UNIQ_KEY_FIND'];
 $o_Mocha->assembly_find 		= $conf['MANTIS']['QUERY_ASSEMBLY_FIND'];
-$o_Mocha->assy_find 		= $conf['MANTIS']['QUERY_ASSY_FIND'];
+$o_Mocha->cust_id_find 		= $conf['MANTIS']['QUERY_CUST_ID_FIND'];
+$o_Mocha->pono_find 		= $conf['MANTIS']['QUERY_PONO_FIND'];
 
 
 $o_Mocha->insert_wo_so_table 		= $conf['MANTIS']['QUERY_INSERT_WO_TABLE'];

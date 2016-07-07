@@ -1,8 +1,7 @@
 <?php
 define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
 define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
-require_once __ROOT__.'core\xt_util.php';
-require_once __ROOT__.'core\manextis_utils.php';
+require_once __ROOT__.'core\helper_util.php';
 require_once __ROOT__.'core\date_time.php';
 require_once __ROOT__.'core.php';
 
@@ -66,6 +65,18 @@ $result = array_merge($result, ['res4' => $response]);
 
 $response = HelperUTIL::mantis_db_query($qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'], $qrs['MANTIS']['customer_table'], 'Jean Doe', 'jean.pono.002', 3, 1461801111, 1461702001);
 $result = array_merge($result, ['res5' => $response]);
+$result = array_merge($result, ['es5.id' => $response['response']['id'][0], 'es5.type' => gettype($response['response']['id'][0])]);
+
+/* ---
+		END Response_5
+		BEGIN Response_6
+   ---
+*/
+
+$response = HelperUTIL::mantis_db_query_insert($qrs['MANTIS']['QUERY_INSERT_CUSTOMER_TABLE'], $qrs['MANTIS']['customer_table'], 'Jenny Doe', 'jenny.pono.006', 3, 1461802222, 1461701999);
+$result = array_merge($result, ['res6' => $response]);
+$result = array_merge($result, ['es6.id' => $response['id'][0], 'es6.type' => gettype($response['id'][0])]);
+
 ?>
 <pre>
 <?php print_r($result); ?>
