@@ -85,7 +85,7 @@ class SkewChess{
 	/**
 	* Build update query
 	*/
-	function update_a_record($p_update, $p_query, $p_table, $p_where){
+	private function update_a_record($p_update, $p_query, $p_table, $p_where){
 
 		$p_set_at = implode(', ', array_keys($p_update));
 		$p_query = str_replace('?', $p_set_at, $p_query);
@@ -99,7 +99,7 @@ class SkewChess{
 	/**
 	* Insertion build logic of XTsync
 	*/
-	function xt_sync_insert($source){
+	private function xt_sync_insert($source){
 		$result = [];
 		$t_counter = 0;
 
@@ -195,6 +195,11 @@ class SkewChess{
 	*/
 
 	function xt_sync_update($X_query_str, $T_query_str, $o_Mocha = null){
+		if (empty($o_Mocha)) throw new Exception(' 13 - Mocha isn\'t defined.');
+		$result['shell'][] = shlog('$ init() testing_mode = '. (($o_Mocha->testing) ? 'true': 'false'));
+
+		// get timestamp moved to top like this || failed with error01
+			$t_timestamp 				= $o_Mocha->timestamp;
 		try {
 			$X_response = $this->manex_db_query($X_query_str);
 			if ($X_response){
@@ -204,8 +209,6 @@ class SkewChess{
 				/* o_Mocha required for your coffee. Feel the Mocha. mochajs.org
 				* UnitTest, IDE environment, IDE utilities (Compiler, Debugger, Lint...), Shell scripting (npm, pip, gem, bower, chmod, md) is hardly performed in PHP if PHP development rocks on the sand of Windows and TextEditor
 				*/
-				if (empty($o_Mocha)) throw new Exception(' 13 - Mocha isn\'t defined.');
-				$result['shell'][] = shlog('$ init() testing_mode = '. (($o_Mocha->testing) ? 'true': 'false'));
 
 				// override result count.
 				$result['Xquery.count'] = ($o_Mocha->testing && !empty($o_Mocha->x_res_count)) ? $o_Mocha->x_res_count : count($X_res_arr);
@@ -223,8 +226,7 @@ class SkewChess{
 				BEGIN T_response, load table names from conf.ini
 				   ---
 				*/
-				// get timestamp
-				$t_timestamp 				= $o_Mocha->timestamp;
+
 				// get table names
 				$q_wo_so_table    			= $o_Mocha->wo_so_table;
 				$q_assembly_table 			= $o_Mocha->assembly_table;
@@ -319,11 +321,10 @@ class SkewChess{
 							// TODO: build pending updateQuery
 						}
 
-						// 2 src.tables ready to perform query build
-						$source['insert_assembly_table'] 	= $o_Mocha->insert_assembly_table;
+						// 1 src.table ready to perform query build
 						$source['insert_wo_so_table'] 		= $o_Mocha->insert_wo_so_table;
 
-						$result['shell'][] = shlog( 'prep() to Insert into 2 insert_assembly_table and insert_wo_so_table.');
+						$result['shell'][] = shlog( 'prep() to Insert into insert_wo_so_table.');
 
 					} else  {
 						$t_customer_lookup = HelperUTIL::mantis_db_query(
@@ -335,7 +336,7 @@ class SkewChess{
 
 						if (!$t_customer_lookup['response']['count']){
 							/* customer_name not exist -> prep() to insertALL */
-							$result['shell'][] = shlog( 'prep() to Queries for InsertALL everything cuz customer_lookup BY name = '. $source['CUST_NAME'] .' gives no result -> customer NOT exist.');
+							$result['shell'][] = shlog( 'prep() to Queries for InsertALL everything cuz customer_lookup BY name = \''. $source['CUST_NAME'] .'\' gives no result -> customer NOT exist.');
 							// 3 src.tables ready to perform query build
 							$source['insert_customer_table'] 	= $o_Mocha->insert_customer_table;
 							$source['insert_assembly_table'] 	= $o_Mocha->insert_assembly_table;

@@ -10,6 +10,12 @@
 /*
 * The helperUTIL class is highly reusable and can be extended for inheritance and instantiation use.
 */
+function print_p ($a){
+	echo '<pre>';
+	print_r($a);
+	echo '</pre>';
+}
+
 class HelperUTIL{
 	const CFG_FILE = 'cfg/manextis_conf.ini';
 	protected static $id;
