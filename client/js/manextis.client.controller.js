@@ -7,10 +7,11 @@ var URL_TRUNCATE = 'truncate.php';
 
 // [1,2,3].map(n => console.log(n + 1));
 var app = angular
-    .module('myApp', ['manextis.filter', 'manextis.directive', 'xt.directive', 'angular-momentjs'])
+    .module('myApp', ['manextis.filter', 'manextis.directive', 'xt.directive', 'xt.directive3', 'xt.directive2', 'angular-momentjs'])
     .controller('myController', ['$scope', '$http', '$location', '$interval', '$timeout', myCtrlFn]);
 
 function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
+    $scope.name = "Ellen";
     $http.defaults.headers.post['dataType'] = 'json';
     $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
     var relUrl = $location.absUrl();
@@ -40,6 +41,8 @@ function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
             }, 1300);
         });
     };
+
+    // $scope.heroes = '[{"name":"Ninja Turtle","attribute":"agile tactic","present":"chapter 44"},{"name":"Wolfverine","attribute":"claws attack","present":"chapter 5"},{"name":"Jean","attribute":"psychiatrist","present":"chapter 2"}]';
 
     $scope.$watch('field10_model',function(newVal, oldVal){
         console.log(newVal, oldVal);
@@ -91,3 +94,4 @@ function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
 };
 
 }());
+

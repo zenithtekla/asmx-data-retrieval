@@ -22,12 +22,12 @@ angular.module("manextis.directive",[])
 
 function resultFetch($location, $http){
 	return {
-		link: function($scope){
-			$scope.$watch('query',function(newVal, oldVal){
+		link: function(scope, elem, attrs){
+			scope.$watch('query',function(newVal, oldVal){
 		        $location.search("query=" + newVal);
-		        $scope.currSearch = $location.search();
-		        var data = $scope.currSearch;
-		        angular.extend(data, { Mocha: $scope.mochaBox});
+		        scope.currSearch = $location.search();
+		        var data = scope.currSearch;
+		        angular.extend(data, { Mocha: scope.mochaBox});
 		        /*
 		        // creator_id to be wired up.
 		        var data = {
@@ -39,23 +39,23 @@ function resultFetch($location, $http){
 		            headers : {'Accept' : 'application/json'}
 		        };
 
-		        $http.post( $scope.dirURL + "/" + URL_JSON_MANTIS_MANEX, config)
+		        $http.post( scope.dirURL + "/" + URL_JSON_MANTIS_MANEX, config)
 
 		        // see short-hand below for the preferred GET method - searching the right way, user can SAVE their searched link, HENCE reusability is made possible: */
 		        if (newVal){
-		        	$scope.xset = null;
-	            	$scope.tset = null;
-	            	$scope.shlog = null;
-	            	$scope.error = null;
-	            	$scope.stock = null;
-	            	$scope.no_query = true;
-	            	$scope.no_insertion = true;
-			        $http.get( $scope.dirURL + "/" + URL_JSON_MANTIS_MANEX,
+		        	scope.xset = null;
+	            	scope.tset = null;
+	            	scope.shlog = null;
+	            	scope.error = null;
+	            	scope.stock = null;
+	            	scope.no_query = true;
+	            	scope.no_insertion = true;
+			        $http.get( scope.dirURL + "/" + URL_JSON_MANTIS_MANEX,
 			        {
 			            params: data
 			        })
 			        .then(function (res) {
-			            $scope.Mocha = {
+			            scope.Mocha = {
 			                test: res.data.Mocha
 			            };
 			            // console.log(res.data);
@@ -87,10 +87,10 @@ function resultFetch($location, $http){
 			            var jobj = (typeof pipe.response ==='string') ? JSON.parse(pipe.response) : pipe.response;
 			            try {
 			            	if (!jobj) throw new Error("Undefined object, response: ");
-			            	$scope.no_result = Object.keys(jobj).length === 0 || jobj == null;
+			            	scope.no_result = Object.keys(jobj).length === 0 || jobj == null;
 
 
-			            	if ($scope.no_result) throw new Error("Unable to map the result object, response: ");
+			            	if (scope.no_result) throw new Error("Unable to map the result object, response: ");
 				            jobj.map(function(d,idx){
 				                o[idx] = {
 				                    key: d.UNIQ_KEY || '',
@@ -142,13 +142,13 @@ function resultFetch($location, $http){
 			            	console.error(e.message, res.data);
 			            }
 			            finally {
-			            	$scope.xset = o;
-			            	$scope.tset = ob || null;
-			            	$scope.shlog = oc || null;
-			            	$scope.error = pipe.error || null;
-			            	$scope.stock = pipe.stock || null;
-			            	$scope.no_query = (!$scope.stock);
-			            	$scope.no_insertion = (!$scope.tset);
+			            	scope.xset = o;
+			            	scope.tset = ob || null;
+			            	scope.shlog = oc || null;
+			            	scope.error = pipe.error || null;
+			            	scope.stock = pipe.stock || null;
+			            	scope.no_query = (!scope.stock);
+			            	scope.no_insertion = (!scope.tset);
 			            }
 			        });
 			    }
@@ -167,7 +167,8 @@ function passingProfile(){
 		restrict: 'E',
 		scope: {
 			marvel:'=',
-			title:'='
+			title:'=',
+			id:'='
 		},
 		replace: true,
 		templateUrl: 'templates/profile.html',
@@ -209,3 +210,41 @@ compile: compile func is rather complicated
 link: link func is not dependency inject
 link: function(scope, elem, attrs){}
 */
+angular
+	.module('xt.directive3', [])
+	.directive("myDirective", function(){
+	return {
+        restrict: "EA",
+        scope: {
+            name: "@"
+        },
+        template: [
+        	"Name : <strong>{{name}}</strong>"
+        ].join("")
+    };
+});
+angular
+	.module('xt.directive2', [])
+	.directive('passingHeroes', [passingHeroes]);
+
+function passingHeroes(){
+	return {
+		restrict: 'E',
+		scope: {
+			heroes: '=marvels',
+			title: '=board',
+			pref: '='
+		},
+		// template: '<li ng-repeat="x in heroes">{{ x.name }} </li>'
+		templateUrl: function(jQuery, attrs){
+			console.log(arguments);
+			console.log(attrs.pref);
+			// return 'templates/tpl2.html';
+			return (attrs.pref =='2') ? 'templates/tpl2.html': 'templates/tpl1.html';
+		}
+	}
+}
+
+/*The main reason to change binding from @ to = is that
+one way binding(@) only supports strings
+whereas 2 way binding(=) supports from simple strings to complex objects. */

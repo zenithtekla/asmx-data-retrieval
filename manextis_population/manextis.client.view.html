@@ -87,6 +87,12 @@
         <!--{{mutants}}-->
         <br/>
         <br/>
+        Name inside parent scope is: <strong>{{name}}</strong>
+        {{marvels}}
+        <div class="directive" my-directive
+            name="{{name}}"
+        ></div>
+        <passing-heroes marvels='marvels' pref='2' board="'heroes list'"></passing-heroes>
         <table border="1" style="color:#166CD7">
             <thead>
                 <tr>
@@ -106,7 +112,7 @@
             </tbody>
         </table>
         <div ng-repeat='marvel in marvels'>
-            <passing-profile marvel='marvel' title="'Hero indexed Card'">
+            <passing-profile id='$index+1' marvel='marvel' title="'Hero indexed Card'">
             </passing-profile>
         </div>
     </div>
