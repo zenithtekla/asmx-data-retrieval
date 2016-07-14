@@ -166,11 +166,12 @@ function passingProfile(){
 	return {
 		restrict: 'E',
 		scope: {
-			data:'='
+			marvel:'='
 		},
-		template: '<h3>{{data.name}}</h3>',
+		transclude: true,
+		templateUrl: 'templates/profile.html',
 		controller: function($scope){
-			console.log($scope.data);
+			console.log($scope.marvel);
 		}
 	}
 }
@@ -188,5 +189,5 @@ controller:function($scope){
 for the sake of consistency, use marvel=marvel everywhere then.
 See next commit
 
-use template with template:'templates/profile.html'
+use template with templateUrl:'templates/profile.html'
 */

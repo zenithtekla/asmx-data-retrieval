@@ -106,7 +106,9 @@
             </tbody>
         </table>
         <div ng-repeat='marvel in marvels'>
-            <passing-profile data='marvel'></passing-profile>
+            <passing-profile marvel='marvel'>
+                <h1>Hero Card</h1>
+            </passing-profile>
         </div>
     </div>
 </div>
