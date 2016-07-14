@@ -157,3 +157,36 @@ function resultFetch($location, $http){
 		templateUrl: 'manextis.client.view.resultFetch.html'
 	};
 }
+
+angular
+	.module('xt.directive', [])
+	.directive('passingProfile', [passingProfile]);
+
+function passingProfile(){
+	return {
+		restrict: 'E',
+		scope: {
+			data:'='
+		},
+		template: '<h3>{{data.name}}</h3>',
+		controller: function($scope){
+			console.log($scope.data);
+		}
+	}
+}
+
+/*
+restrict: 'E', apply to element which <passing-profile> is an element
+restrict: 'A', apply to attribute which <div passing-profile></div> or <div data-passing-profile></div>, passing-profile is an attribute role here, same as data=marvel, data is an attribute.
+if scope were to be:
+scope: {
+	myData:'=data'
+},
+controller:function($scope){
+	console.log($scope.myData); // use myData instead
+}
+for the sake of consistency, use marvel=marvel everywhere then.
+See next commit
+
+use template with template:'templates/profile.html'
+*/

@@ -7,7 +7,7 @@ var URL_TRUNCATE = 'truncate.php';
 
 // [1,2,3].map(n => console.log(n + 1));
 var app = angular
-    .module('myModule', ['manextis.filter', 'manextis.directive', 'angular-momentjs'])
+    .module('myApp', ['manextis.filter', 'manextis.directive', 'xt.directive', 'angular-momentjs'])
     .controller('myController', ['$scope', '$http', '$location', '$interval', '$timeout', myCtrlFn]);
 
 function myCtrlFn ($scope, $http, $location, $interval, $timeout) {

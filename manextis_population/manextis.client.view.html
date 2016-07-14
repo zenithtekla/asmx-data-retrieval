@@ -5,7 +5,7 @@
     <link href="client/css/bootstrap.css" rel="stylesheet" />
     <link href="client/css/manextis.client.style.css" rel="stylesheet" />
 </head>
-<body ng-app="myModule">
+<body ng-app="myApp">
 <div class="wrapper container table-container" ng-controller="myController">
     <div class="so_wo">
         <input id="field10" class="any_field" type="text" size="100" name="any_name" ng-model='field10_model' required/>
@@ -84,7 +84,7 @@
         <h3>Mutants and Marvel Heroes</h3>
         <br/>
         <br/>
-        {{mutants}}
+        <!--{{mutants}}-->
         <br/>
         <br/>
         <table border="1" style="color:#166CD7">
@@ -105,6 +105,9 @@
                 </tr>
             </tbody>
         </table>
+        <div ng-repeat='marvel in marvels'>
+            <passing-profile data='marvel'></passing-profile>
+        </div>
     </div>
 </div>
 <script src="client/js/jquery.js"></script>
