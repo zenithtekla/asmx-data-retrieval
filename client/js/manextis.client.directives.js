@@ -166,10 +166,17 @@ function passingProfile(){
 	return {
 		restrict: 'E',
 		scope: {
-			marvel:'='
+			marvel:'=',
+			title:'='
 		},
-		transclude: true,
+		replace: true,
 		templateUrl: 'templates/profile.html',
+		link: function(scope, elem, attrs){
+			console.log(arguments);
+			elem.click(function(){
+				alert('Your event hero is ' + scope.marvel.name);
+			});
+		},
 		controller: function($scope){
 			console.log($scope.marvel);
 		}
@@ -190,4 +197,15 @@ for the sake of consistency, use marvel=marvel everywhere then.
 See next commit
 
 use template with templateUrl:'templates/profile.html'
+
+r36:
+- pass scope.title data attribute from element pass-profile in view.html to
+the directive
+- use title in the profile template instead of ng-transclude
+- replace to use normal div-wrapper in the template instead of <pass-profile> as a wrapper
+
+compile: compile func is rather complicated
+
+link: link func is not dependency inject
+link: function(scope, elem, attrs){}
 */
