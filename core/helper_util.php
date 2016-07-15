@@ -17,7 +17,7 @@ function print_p ($a){
 }
 
 class HelperUTIL{
-	const CFG_FILE = 'cfg/manextis_conf.ini';
+	const CFG_FILE = 'cfg/xt_conf.ini';
 	protected static $id;
 	public static function input_string_valid($str){
         return is_string($str) && isset($str) && !empty($str); // && is_scalar($str)
