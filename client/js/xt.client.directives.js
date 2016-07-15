@@ -424,7 +424,6 @@ function passingProfile(){
 		replace: true,
 		templateUrl: 'templates/profile.html',
 		link: function(scope, elem, attrs){
-			console.log(arguments);
 			elem.click(function(){
 				alert('Your event hero is ' + scope.marvel.name);
 			});
@@ -488,8 +487,6 @@ function passingHeroes(){
 		},
 		// template: '<li ng-repeat="x in heroes">{{ x.name }} </li>'
 		templateUrl: function(jQuery, attrs){
-			console.log(arguments);
-			console.log(attrs.pref);
 			// return 'templates/tpl2.html';
 			return (attrs.pref =='2') ? 'templates/tpl2.html': 'templates/tpl1.html';
 		}

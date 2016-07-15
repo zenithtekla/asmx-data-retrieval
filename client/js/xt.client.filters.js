@@ -1,4 +1,4 @@
-angular.module('manextis.filter', ['angular-momentjs'])
+angular.module('xt.filter', ['angular-momentjs'])
 .filter('boolText', boolText)
 .filter('dateFormat', ['$moment', dateFormat]);
 

@@ -99,9 +99,9 @@ function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
 =======
 (function () {
   'use strict';
-var URI_ACQUIRE_DATE = 'model/manextis_test_acquire_date.php';
-var URI_SO_WO = 'model/manextis_test_so_wo.php';
-var URI_JSON_SAMPLE = 'sample_data/manextis_sample_json.json';
+var URI_ACQUIRE_DATE = 'model/xt_test_acquire_date.php';
+var URI_SO_WO = 'model/xt_test_so_wo.php';
+var URI_JSON_SAMPLE = 'model/sample_data/xt_sample_json.json';
 var URI_TRUNCATE = 'truncate.php';
 
 // [1,2,3].map(n => console.log(n + 1));
@@ -110,7 +110,7 @@ var app = angular
     .controller('myController', ['$scope', '$http', '$location', '$interval', '$timeout', myCtrlFn]);
 
 function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
-    $scope.name = "Ellen";
+    $scope.name = "Ellen Page";
     $http.defaults.headers.post['dataType'] = 'json';
     $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
     var relUrl = $location.absUrl();
@@ -140,8 +140,6 @@ function myCtrlFn ($scope, $http, $location, $interval, $timeout) {
             }, 1300);
         });
     };
-
-    // $scope.heroes = '[{"name":"Ninja Turtle","attribute":"agile tactic","present":"chapter 44"},{"name":"Wolfverine","attribute":"claws attack","present":"chapter 5"},{"name":"Jean","attribute":"psychiatrist","present":"chapter 2"}]';
 
     $scope.$watch('field10_model',function(newVal, oldVal){
         console.log(newVal, oldVal);

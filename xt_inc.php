@@ -29,7 +29,7 @@ B/ Enforce update to match all data including wono, no more variation and differ
 header('Content-Type: application/json');
 define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
 define('__CFG_FILE__', __ROOT__.'cfg\xt_conf.ini');
-require_once __ROOT__.'core.php';
+require_once '../core.php'; // require ManTisBT.core
 require_once __ROOT__.'core\date_time.php';
 require_once __ROOT__.'core\helper_util.php';
 require_once __ROOT__.'core\xt_util.php';
