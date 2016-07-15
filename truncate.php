@@ -1,7 +1,11 @@
 <?php
 header('Content-Type: application/json');
 define('__ROOT__', dirname(__FILE__).DIRECTORY_SEPARATOR);
+<<<<<<< HEAD
 define('__CFG_FILE__', __ROOT__.'cfg\manextis_conf.ini');
+=======
+define('__CFG_FILE__', __ROOT__.'cfg\xt_conf.ini');
+>>>>>>> a8847e7... r40 final polish
 require_once '../core.php'; // require ManTisBT.core
 require_once __ROOT__.'core\helper_util.php';
 
